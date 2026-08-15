@@ -1,0 +1,72 @@
+:root{
+  --ground:#F1FAF8; --panel:#FFFFFF; --panel-2:#E6F5F1; --ink:#17302A; --muted:#5F847C;
+  --line:#CDE9E2; --accent:#12A594; --accent-ink:#0C7B6F; --accent-soft:#D6F3ED;
+  --plum:#7C5CD6; --plum-soft:#EDE6FF; --warn:#C8552F; --warn-soft:#FBE6DC;
+  --sans:"Hiragino Maru Gothic ProN","Hiragino Maru Gothic Pro",YuGothic,"Yu Gothic","M PLUS Rounded 1c",Meiryo,system-ui,sans-serif;
+  --shadow:0 22px 50px -38px rgba(10,70,60,.5);
+}
+@media (prefers-color-scheme:dark){:root{
+  --ground:#0E1A18; --panel:#172724; --panel-2:#1F332E; --ink:#E6F4F0; --muted:#93B2AA;
+  --line:#284039; --accent:#2ED3BE; --accent-ink:#63E5D2; --accent-soft:#1B3B36;
+  --plum:#A98BF0; --plum-soft:#2A2145; --warn:#FF9068; --warn-soft:#3A241C;
+  --shadow:0 22px 50px -38px rgba(0,0,0,.85);
+}}
+*{box-sizing:border-box;}
+html,body{margin:0;}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.9;
+  -webkit-font-smoothing:antialiased;font-feature-settings:"palt" 1;}
+.wrap{max-width:680px;margin:0 auto;padding:14px 16px 40px;}
+
+.brand{display:flex;align-items:center;gap:9px;padding:8px 2px 14px;}
+.brand svg{width:24px;height:24px;flex:none;color:var(--accent);}
+.brand a{font-size:.98rem;font-weight:800;color:var(--accent-ink);text-decoration:none;}
+.crumb{font-size:.74rem;color:var(--muted);padding:0 2px 12px;}
+.crumb a{color:var(--muted);}
+
+article{background:var(--panel);border:1px solid var(--line);border-radius:20px;
+  padding:26px 20px 30px;box-shadow:var(--shadow);}
+h1{font-size:clamp(1.42rem,5.2vw,1.9rem);line-height:1.45;margin:0 0 12px;text-wrap:balance;letter-spacing:.01em;}
+.lede{color:var(--muted);font-size:.95rem;margin:0 0 22px;}
+h2{font-size:1.14rem;line-height:1.5;margin:34px 0 12px;padding-left:12px;
+  border-left:5px solid var(--accent);text-wrap:balance;}
+h3{font-size:1rem;margin:22px 0 8px;color:var(--accent-ink);}
+p{margin:0 0 15px;}
+strong{font-weight:800;}
+ul,ol{margin:0 0 16px;padding-left:1.35em;}
+li{margin-bottom:9px;}
+.updated{font-size:.74rem;color:var(--muted);margin:0 0 20px;}
+
+.note{background:var(--panel-2);border-radius:14px;padding:14px 16px;margin:0 0 18px;font-size:.9rem;}
+.note.warn{background:var(--warn-soft);}
+.note.warn b{color:var(--warn);}
+.note p:last-child{margin-bottom:0;}
+.note .t{font-weight:800;margin:0 0 6px;}
+
+.truth{border:1.5px solid var(--line);border-radius:15px;overflow:hidden;margin:0 0 18px;}
+.truth .row{display:grid;grid-template-columns:1fr;gap:2px;padding:13px 15px;border-bottom:1px solid var(--line);}
+.truth .row:last-child{border-bottom:0;}
+.truth .claim{font-weight:800;font-size:.94rem;}
+.truth .verdict{font-size:.78rem;font-weight:800;}
+.truth .v-yes{color:var(--accent-ink);} .truth .v-maybe{color:#B98A2E;} .truth .v-no{color:var(--warn);}
+.truth .why{font-size:.86rem;color:var(--muted);line-height:1.75;}
+
+.cta{background:linear-gradient(135deg,var(--accent-soft),var(--panel-2));
+  border:1.5px solid var(--accent);border-radius:18px;padding:20px 18px;margin:30px 0 6px;}
+.cta h2{border:0;padding:0;margin:0 0 8px;font-size:1.08rem;}
+.cta p{font-size:.9rem;color:var(--muted);margin:0 0 14px;}
+.btn{display:block;text-align:center;text-decoration:none;font-weight:800;font-size:1rem;
+  background:var(--accent);color:#fff;border-radius:999px;padding:14px 20px;
+  box-shadow:0 12px 24px -14px rgba(18,165,148,.8);transition:transform .12s ease,filter .12s ease;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.06);}
+
+.more{margin:26px 0 0;}
+.more .t{font-size:.8rem;font-weight:800;color:var(--muted);margin:0 0 10px;}
+.more ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px;}
+.more a{display:inline-block;font-size:.86rem;font-weight:700;text-decoration:none;
+  color:var(--accent-ink);background:var(--panel);border:1.5px solid var(--line);
+  border-radius:999px;padding:8px 15px;}
+.more a:hover{border-color:var(--accent);}
+
+.site-foot{text-align:center;font-size:.75rem;color:var(--muted);padding:22px 0 4px;line-height:2;}
+.site-foot a{color:var(--accent-ink);font-weight:700;}
+a:focus-visible,.btn:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;}

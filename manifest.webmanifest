@@ -1,0 +1,17 @@
+{
+  "name": "肌カルテ｜部位別の肌記録",
+  "short_name": "肌カルテ",
+  "description": "顔の7部位ごとに肌の調子を記録し、食事・睡眠・スキンケア・洗顔との関係を分析します。記録は端末内のみ。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F1FAF8",
+  "theme_color": "#12A594",
+  "lang": "ja",
+  "categories": ["health", "lifestyle"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

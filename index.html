@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>肌カルテ｜部位別に記録して、肌荒れの原因を見つける無料アプリ</title>
+<meta name="description" content="でこ・こめかみ・鼻・頬・口周り・顎・フェイスラインを毎日5段階で記録。食べたもの、睡眠時間、スキンケア、洗顔・クレンジングの種類まで残すと、どれが原因で肌の調子が落ちているかを統計で見つけます。無料・登録不要・記録は端末の中だけ。" />
+<meta name="keywords" content="肌荒れ,原因,記録,アプリ,肌 日記,ニキビ 記録,部位別,スキンケア 記録,肌 カルテ,無料" />
+<link rel="canonical" href="https://hadakarte.com/" />
+<meta name="robots" content="index, follow" />
+<meta name="theme-color" content="#12A594" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="肌カルテ" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="肌カルテ" />
+<meta property="og:title" content="肌カルテ｜部位別に記録して、肌荒れの原因を見つける" />
+<meta property="og:description" content="7つの部位を5段階で記録。食べたもの・睡眠・スキンケア・洗顔まで残すと、どれが、どの部位に効いているかを統計で見つけます。無料・登録不要・記録は端末の中だけ。" />
+<meta property="og:url" content="https://hadakarte.com/" />
+<meta property="og:image" content="https://hadakarte.com/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="ja_JP" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="肌カルテ｜部位別に記録して、肌荒れの原因を見つける" />
+<meta name="twitter:description" content="7つの部位を5段階で記録。何が、どの部位に効いているかを統計で見つけます。無料・登録不要。" />
+<meta name="twitter:image" content="https://hadakarte.com/og.png" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"肌カルテ","url":"https://hadakarte.com/","description":"顔の7部位ごとに肌の調子を記録し、食事・睡眠・スキンケア・洗顔との関係を統計的に分析する無料Webアプリ。記録は端末内のみに保存されます。","applicationCategory":"HealthApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"},"inLanguage":"ja"}
+</script>
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8C3BWE4BTF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-8C3BWE4BTF');
+</script>
+<script data-goatcounter="https://stylecompass.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<style>
+  :root{
+    --ground:#F1FAF8; --panel:#FFFFFF; --panel-2:#E6F5F1; --ink:#17302A; --muted:#6C918A;
+    --line:#CDE9E2; --accent:#12A594; --accent-ink:#0C7B6F; --accent-soft:#D6F3ED;
+    --plum:#7C5CD6; --plum-soft:#EDE6FF; --warn:#D9633B; --warn-soft:#FBE6DC; --good:#2F9C63;
+    --s1:#D9563A; --s2:#E79355; --s3:#D9C263; --s4:#6FBF8B; --s5:#2C9760;
+    --sans:"Hiragino Maru Gothic ProN","Hiragino Maru Gothic Pro",YuGothic,"Yu Gothic","M PLUS Rounded 1c",Meiryo,system-ui,sans-serif;
+    --shadow:0 22px 50px -38px rgba(10,70,60,.5);
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --ground:#0E1A18; --panel:#172724; --panel-2:#1F332E; --ink:#E6F4F0; --muted:#8DAFA7;
+    --line:#284039; --accent:#2ED3BE; --accent-ink:#63E5D2; --accent-soft:#1B3B36;
+    --plum:#A98BF0; --plum-soft:#2A2145; --warn:#FF9068; --warn-soft:#3A241C; --good:#5CC98D;
+    --s1:#E0674A; --s2:#EDA467; --s3:#DDCB77; --s4:#79C795; --s5:#48B478;
+    --shadow:0 22px 50px -38px rgba(0,0,0,.85);
+  }}
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.7;
+    -webkit-font-smoothing:antialiased;font-feature-settings:"palt" 1;
+    padding-bottom:calc(76px + env(safe-area-inset-bottom));}
+  .wrap{max-width:620px;margin:0 auto;padding:12px 14px 26px;}
+
+  .brand{display:flex;align-items:center;gap:9px;padding:6px 2px 12px;}
+  .brand .mk{width:25px;height:25px;flex:none;color:var(--accent);}
+  .brand b{font-size:1rem;font-weight:800;color:var(--accent-ink);}
+  .brand .tent{font-size:.72rem;color:var(--muted);font-weight:600;}
+  .brand .streak{margin-left:auto;font-size:.72rem;font-weight:800;color:var(--accent-ink);
+    background:var(--accent-soft);padding:5px 10px;border-radius:999px;white-space:nowrap;}
+  /* スマホ幅では説明文が折り返してヘッダが2行(72px)になるので、アプリ名だけ残す */
+  @media (max-width:430px){ .brand .tent{display:none;} }
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px 14px;
+    box-shadow:var(--shadow);margin-bottom:12px;}
+  h1{font-size:1.28rem;line-height:1.45;margin:0 0 8px;text-wrap:balance;}
+  h2{font-size:.98rem;margin:0 0 11px;}
+  .lede{color:var(--muted);margin:0 0 14px;font-size:.9rem;}
+  .sub{color:var(--muted);font-size:.78rem;margin:7px 0 0;line-height:1.65;}
+  /* 各セクションの見出し（食べたもの・洗顔など）。中身のチップより明確に大きくして、
+     どこからどこまでが1つの項目なのかが一目で分かるようにする。 */
+  .label{font-size:1.12rem;font-weight:800;color:var(--ink);letter-spacing:.01em;margin:0 0 12px;}
+  .label .opt{font-weight:600;font-size:.74rem;opacity:.75;color:var(--muted);}
+  .label.mt{margin-top:16px;}
+
+  .view{display:none;} .view.on{display:block;animation:fade .26s ease both;}
+  @keyframes fade{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+
+  .datebar{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .nav{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+    width:38px;height:38px;border-radius:12px;font-size:1rem;cursor:pointer;flex:none;font-family:var(--sans);}
+  .nav:disabled{opacity:.32;cursor:default;}
+  .datebar .now{flex:1;text-align:center;font-weight:800;font-size:1rem;}
+  .datebar .now small{display:block;font-weight:600;font-size:.71rem;color:var(--muted);}
+  .saved{font-size:.72rem;color:var(--good);font-weight:800;min-height:1.1em;text-align:center;margin:-4px 0 8px;
+    opacity:0;transition:opacity .2s ease;}
+  .saved.on{opacity:1;}
+
+  /* face map */
+  .facewrap{display:flex;justify-content:center;margin:-4px 0 10px;}
+  .face{width:172px;height:auto;}
+  .face .zone{cursor:pointer;transition:opacity .15s ease;stroke:var(--panel);stroke-width:1.4;}
+  .face .zone:hover{opacity:.75;}
+  .face .zone.sel{stroke:var(--accent);stroke-width:2.6;}
+  .face .out{fill:none;stroke:var(--line);stroke-width:2;}
+
+  /* area grid */
+  .agrid{display:grid;grid-template-columns:5.6em repeat(5,1fr);gap:5px;align-items:center;}
+  .agrid .hd{font-size:.6rem;color:var(--muted);font-weight:800;text-align:center;line-height:1.25;padding-bottom:2px;}
+  .agrid .nm{font-size:.79rem;font-weight:800;color:var(--ink);padding-right:2px;}
+  .agrid .nm.sel{color:var(--accent-ink);}
+  .lv{appearance:none;cursor:pointer;font-family:var(--sans);border:1.5px solid var(--line);background:var(--panel);
+    border-radius:10px;height:34px;padding:0;transition:transform .1s ease;position:relative;}
+  .lv:hover{transform:translateY(-1px);}
+  .lv i{display:block;width:11px;height:11px;border-radius:50%;margin:0 auto;background:var(--line);transition:background .1s ease;}
+  .lv[aria-pressed="true"]{border-width:2px;}
+  .bulk{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px;}
+
+  /* chips */
+  .chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{appearance:none;cursor:pointer;font-family:var(--sans);font-size:.81rem;font-weight:700;color:var(--muted);
+    background:var(--panel);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;line-height:1.45;
+    transition:border-color .12s ease,background .12s ease,color .12s ease,transform .12s ease;}
+  .chip:hover{transform:translateY(-1px);border-color:var(--accent);}
+  .chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink);}
+  .chip.plum[aria-pressed="true"]{border-color:var(--plum);background:var(--plum-soft);color:var(--plum);}
+  .chip.no[aria-pressed="true"]{border-color:var(--warn);background:var(--warn-soft);color:var(--warn);}
+  .chip.add{border-style:dashed;color:var(--accent-ink);}
+  a.chip.link{text-decoration:none;color:var(--accent-ink);}
+  a.chip.link::after{content:" ›";opacity:.6;}
+  .grp{margin-bottom:12px;} .grp:last-child{margin-bottom:0;}
+  .gt{font-size:.74rem;font-weight:800;color:var(--muted);margin:0 0 6px;}
+
+  .times{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+  .tf{flex:1;min-width:120px;}
+  .tf span{display:block;font-size:.72rem;font-weight:800;color:var(--muted);margin-bottom:4px;}
+  input[type=time]{width:100%;font-family:var(--sans);font-size:1rem;color:var(--ink);background:var(--panel-2);
+    border:1.5px solid var(--line);border-radius:12px;padding:9px 11px;}
+  .slen{font-weight:800;color:var(--accent-ink);background:var(--accent-soft);border-radius:12px;
+    padding:9px 14px;white-space:nowrap;font-size:.92rem;}
+  textarea{width:100%;font-family:var(--sans);font-size:.94rem;color:var(--ink);background:var(--panel-2);
+    border:1.5px solid var(--line);border-radius:13px;padding:10px 12px;resize:vertical;min-height:66px;line-height:1.6;}
+  input[type=text]{width:100%;font-family:var(--sans);font-size:1rem;color:var(--ink);background:var(--panel-2);
+    border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;}
+  textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+
+  .btn{appearance:none;border:0;cursor:pointer;font-family:var(--sans);font-weight:800;font-size:.95rem;
+    background:var(--accent);color:#fff;border-radius:999px;padding:12px 18px;width:100%;
+    box-shadow:0 10px 22px -14px rgba(18,165,148,.8);transition:transform .12s ease,filter .12s ease;}
+  .btn:hover{transform:translateY(-2px);filter:brightness(1.05);}
+  .btn.ghost{background:var(--panel);color:var(--accent-ink);border:1.5px solid var(--line);box-shadow:none;font-weight:700;}
+  .btn.ghost:hover{border-color:var(--accent);}
+  .btn.danger{background:var(--panel);color:var(--warn);border:1.5px solid var(--warn-soft);box-shadow:none;}
+  .btn.sm{font-size:.83rem;padding:8px 14px;width:auto;}
+  .row{display:flex;gap:8px;flex-wrap:wrap;}
+  .row .btn{width:auto;flex:1;min-width:126px;}
+  .btn:focus-visible,.chip:focus-visible,.lv:focus-visible,.tab:focus-visible,.nav:focus-visible,
+  .zone:focus-visible,.pitem:focus-visible,a:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;}
+
+  .photobox{display:flex;gap:10px;align-items:center;}
+  .photobox .ph{width:70px;height:70px;border-radius:13px;object-fit:cover;border:1.5px solid var(--line);background:var(--panel-2);flex:none;}
+  .photobox .empty{width:70px;height:70px;border-radius:13px;border:1.5px dashed var(--line);background:var(--panel-2);
+    display:grid;place-items:center;color:var(--muted);font-size:1.25rem;flex:none;}
+  input[type=file]{display:none;}
+
+  /* heatmap */
+  .hm{display:grid;grid-template-columns:5.4em 1fr;gap:4px 6px;align-items:center;}
+  .hm .rn{font-size:.71rem;font-weight:800;color:var(--muted);}
+  .hm .rr{display:grid;gap:2px;}
+  .hm .c{aspect-ratio:1;border-radius:2px;background:var(--panel-2);}
+  .hmfoot{display:flex;justify-content:space-between;font-size:.66rem;color:var(--muted);font-weight:700;
+    margin:6px 0 0;padding-left:calc(5.4em + 6px);}
+  .chart{width:100%;height:auto;display:block;}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:6px;}
+  .kpi{background:var(--panel-2);border-radius:13px;padding:9px 6px;text-align:center;}
+  .kpi b{display:block;font-size:1.1rem;line-height:1.3;} .kpi span{font-size:.65rem;color:var(--muted);font-weight:700;}
+  .legend{display:flex;gap:9px;flex-wrap:wrap;align-items:center;font-size:.68rem;color:var(--muted);margin-top:10px;}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:3px;}
+
+  /* calendar */
+  .calhead{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+  .calhead .m{flex:1;text-align:center;font-weight:800;}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .dow{text-align:center;font-size:.66rem;font-weight:800;color:var(--muted);}
+  .cell{appearance:none;font-family:var(--sans);cursor:pointer;aspect-ratio:1;border-radius:10px;border:1.5px solid transparent;
+    background:var(--panel-2);color:var(--muted);font-size:.73rem;font-weight:700;display:grid;place-items:center;padding:0;}
+  .cell.blank{background:transparent;cursor:default;}
+  .cell.today{border-color:var(--accent);}
+  .cell.has{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);}
+
+  /* insights */
+  .ins{border:1.5px solid var(--line);border-radius:15px;padding:12px 13px;margin-bottom:9px;background:var(--panel-2);}
+  .ins.bad{border-color:var(--warn-soft);background:var(--warn-soft);}
+  .ins.good{border-color:var(--accent-soft);background:var(--accent-soft);}
+  .ins .h{font-weight:800;font-size:.94rem;margin:0 0 4px;line-height:1.55;}
+  .ins .d{font-size:.77rem;color:var(--muted);margin:0;}
+  .ins .tag{display:inline-block;font-size:.64rem;font-weight:800;padding:2px 8px;border-radius:999px;
+    background:var(--panel);color:var(--muted);margin-left:5px;vertical-align:1px;}
+  .bars{display:flex;flex-direction:column;gap:6px;}
+  .bar{display:grid;grid-template-columns:6em 1fr auto;gap:8px;align-items:center;font-size:.78rem;}
+  .bar .t{color:var(--muted);font-weight:700;}
+  .bar .track{height:9px;background:var(--panel-2);border-radius:999px;overflow:hidden;}
+  .bar .fill{height:100%;border-radius:999px;background:var(--accent);}
+  .bar .v{font-weight:800;font-variant-numeric:tabular-nums;}
+  .progress{height:9px;background:var(--panel-2);border-radius:999px;overflow:hidden;margin:10px 0 6px;}
+  .progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--plum));border-radius:999px;}
+
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;}
+  .pitem{position:relative;appearance:none;border:2px solid transparent;padding:0;border-radius:13px;overflow:hidden;
+    cursor:pointer;background:var(--panel-2);aspect-ratio:1;}
+  .pitem img{width:100%;height:100%;object-fit:cover;display:block;}
+  .pitem .cap{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.72));
+    color:#fff;font-size:.6rem;font-weight:700;padding:9px 3px 3px;}
+  .pitem[aria-pressed="true"]{border-color:var(--accent);}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+  .cmp figure{margin:0;} .cmp img{width:100%;border-radius:13px;display:block;border:1px solid var(--line);}
+  .cmp figcaption{font-size:.7rem;color:var(--muted);font-weight:700;text-align:center;padding-top:4px;}
+
+  .empty-note{text-align:center;color:var(--muted);font-size:.86rem;padding:20px 8px;}
+  .privacy{background:var(--accent-soft);border-radius:13px;padding:11px 13px;font-size:.78rem;color:var(--accent-ink);line-height:1.65;}
+  .disclaimer{font-size:.71rem;color:var(--muted);line-height:1.7;background:var(--panel-2);border-radius:11px;padding:10px 12px;}
+  .kindhead{font-size:.75rem;font-weight:800;color:var(--accent-ink);background:var(--accent-soft);
+    display:inline-block;padding:3px 10px;border-radius:999px;margin:12px 0 2px;}
+  .itemline{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:.85rem;}
+  .itemline:last-child{border-bottom:0;}
+  .itemline .x{margin-left:auto;appearance:none;border:0;background:none;color:var(--warn);cursor:pointer;
+    font-size:.78rem;font-weight:800;font-family:var(--sans);}
+
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:color-mix(in srgb,var(--panel) 93%,transparent);
+    backdrop-filter:blur(12px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));}
+  .tab{appearance:none;border:0;background:none;cursor:pointer;font-family:var(--sans);padding:5px 2px;
+    color:var(--muted);font-size:.64rem;font-weight:800;line-height:1.35;border-radius:11px;}
+  .tab .ti{display:block;font-size:1.13rem;line-height:1.25;filter:grayscale(1) opacity(.6);}
+  .tab[aria-selected="true"]{color:var(--accent-ink);}
+  .tab[aria-selected="true"] .ti{filter:none;}
+
+  .modal{position:fixed;inset:0;z-index:60;background:rgba(8,30,26,.55);display:none;align-items:flex-end;justify-content:center;}
+  .modal.on{display:flex;}
+  .sheet{background:var(--panel);width:100%;max-width:620px;border-radius:20px 20px 0 0;
+    padding:18px 15px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;animation:up .24s ease both;}
+  @keyframes up{from{transform:translateY(22px);opacity:0;}to{transform:none;opacity:1;}}
+  .sheet pre{white-space:pre-wrap;word-break:break-word;font-family:var(--sans);font-size:.82rem;background:var(--panel-2);
+    border-radius:13px;padding:12px;line-height:1.7;margin:0 0 11px;}
+  .site-foot{text-align:center;font-size:.72rem;color:var(--muted);padding:6px 0 2px;line-height:1.9;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="brand">
+    <svg class="mk" viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="13.5" fill="none" stroke="currentColor" stroke-width="2.2"/>
+      <path d="M21.5 10.5 L18 18 L10.5 21.5 L14 14 Z" fill="currentColor"/>
+    </svg>
+    <div><b id="appName">肌カルテ</b> <span class="tent">— 部位ごとに記録して原因を見つける</span></div>
+    <span class="streak" id="streak" hidden></span>
+  </header>
+
+  <!-- ============ 記録 ============ -->
+  <section class="view on" id="v-log" role="tabpanel">
+    <div class="card" id="introCard">
+      <h1>部位ごとに記録して、原因を突きとめる。</h1>
+      <p class="lede">7つの部位を5段階で記録し、食べたもの・睡眠・スキンケア・洗顔まで残していくと、<b>どれが、どの部位に効いているか</b>を自動で計算します。記録も写真もこの端末の中だけに保存され、外には出ません。</p>
+      <div class="privacy" style="margin-bottom:14px">
+        ⏰ <b>使いかた</b>：肌の調子は<b>朝、顔を洗う前</b>に。その日の食事やスキンケアは<b>夜にまとめて</b>足してください。<br>
+        毎日同じタイミングで見ることで、日ごとの比較ができるようになります。
+      </div>
+      <button class="btn ghost sm" id="hideIntro">はじめる</button>
+    </div>
+
+    <div class="datebar">
+      <button class="nav" id="dPrev" aria-label="前の日へ">‹</button>
+      <div class="now"><span id="dLabel"></span><small id="dSub"></small></div>
+      <button class="nav" id="dNext" aria-label="次の日へ">›</button>
+    </div>
+    <div class="saved" id="savedMsg">✓ 保存しました</div>
+
+    <div class="card">
+      <p class="label">部位ごとの調子 <span class="opt">（朝・洗顔前の状態を）</span></p>
+      <div class="facewrap" id="faceWrap"></div>
+      <div class="agrid" id="areaGrid"></div>
+      <div class="bulk">
+        <button class="chip" id="bulkNormal" type="button">ぜんぶ「普通」</button>
+        <button class="chip" id="bulkCopy" type="button">前回と同じ</button>
+        <button class="chip" id="bulkClear" type="button">クリア</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="label">睡眠 <span class="opt">（前の晩）</span></p>
+      <div class="times">
+        <label class="tf"><span>前の晩に寝た時間</span><input type="time" id="sIn" /></label>
+        <label class="tf"><span>その朝に起きた時間</span><input type="time" id="sOut" /></label>
+        <div class="slen" id="sLen">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="label">食べたもの <span class="opt">（複数可）</span></p>
+      <div id="foodRow"></div>
+      <p class="label mt">飲んだもの</p>
+      <div id="drinkRow"></div>
+    </div>
+
+    <div class="card">
+      <p class="label">使ったスキンケア（朝）</p>
+      <div id="skinAMRow"></div>
+      <p class="label mt">使ったスキンケア（夜）</p>
+      <div id="skinPMRow"></div>
+      <p class="label mt">使ったメイク用品</p>
+      <div id="makeupRow"></div>
+    </div>
+
+    <div class="card">
+      <p class="label">洗顔（朝） <span class="opt">（1つ選択）</span></p>
+      <div id="washAMRow"></div>
+      <p class="label mt">洗顔（夜）</p>
+      <div id="washPMRow"></div>
+      <p class="label mt">クレンジング</p>
+      <div id="cleanseRow"></div>
+      <p class="label mt">洗いかた</p>
+      <div class="chips" id="howRow"></div>
+    </div>
+
+    <div class="card">
+      <p class="label">からだ</p>
+      <div class="chips" id="bodyRow"></div>
+      <div id="periodBox" hidden>
+        <p class="label mt">生理</p>
+        <div class="chips" id="periodRow"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="label">写真 <span class="opt">（任意・端末内だけ）</span></p>
+      <div class="photobox">
+        <div id="phSlot"><div class="empty">＋</div></div>
+        <div style="flex:1">
+          <button class="btn ghost sm" id="phAdd">写真を追加</button>
+          <button class="btn danger sm" id="phDel" hidden style="margin-top:6px">削除</button>
+        </div>
+      </div>
+      <input type="file" id="phInput" accept="image/*" />
+      <p class="label mt">メモ</p>
+      <textarea id="memo" placeholder="体調、気づいたことなど"></textarea>
+    </div>
+  </section>
+
+  <!-- ============ 推移 ============ -->
+  <section class="view" id="v-chart" role="tabpanel">
+    <div class="card">
+      <h2>部位ごとの調子（直近28日）</h2>
+      <div class="hm" id="heat"></div>
+      <div class="hmfoot"><span>28日前</span><span>今日</span></div>
+      <div class="legend">
+        <span><i style="background:var(--s1)"></i>絶不調</span>
+        <span><i style="background:var(--s3)"></i>普通</span>
+        <span><i style="background:var(--s5)"></i>絶好調</span>
+        <span><i style="background:var(--panel-2)"></i>記録なし</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>全体の推移</h2>
+      <div id="chartWrap"></div>
+      <div class="kpis" id="kpis"></div>
+    </div>
+    <div class="card">
+      <h2>荒れやすい部位</h2>
+      <div class="bars" id="areaBars"></div>
+      <p class="sub">記録した日の平均（5がいちばん良い）。低い部位ほど荒れやすい場所です。</p>
+      <p class="label mt">その部位で起きやすいこと</p>
+      <div class="chips">
+        <a class="chip link" href="odeko/">でこ</a>
+        <a class="chip link" href="komekami/">こめかみ</a>
+        <a class="chip link" href="hana/">鼻</a>
+        <a class="chip link" href="hoho/">頬</a>
+        <a class="chip link" href="kuchimoto/">口周り</a>
+        <a class="chip link" href="ago/">顎</a>
+        <a class="chip link" href="faceline/">フェイスライン</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="calhead">
+        <button class="nav" id="mPrev" aria-label="前の月へ">‹</button>
+        <div class="m" id="mLabel"></div>
+        <button class="nav" id="mNext" aria-label="次の月へ">›</button>
+      </div>
+      <div class="cal" id="calGrid"></div>
+    </div>
+  </section>
+
+  <!-- ============ きづき ============ -->
+  <section class="view" id="v-insight" role="tabpanel"><div id="insightBody"></div></section>
+
+  <!-- ============ 写真 ============ -->
+  <section class="view" id="v-photo" role="tabpanel">
+    <div class="card">
+      <h2>写真でふりかえる</h2>
+      <p class="sub" style="margin:0 0 11px">2枚えらぶと並べて比べられます。</p>
+      <div id="cmpWrap"></div>
+      <div class="pgrid" id="pGrid"></div>
+      <p class="empty-note" id="pEmpty" hidden>まだ写真がありません。</p>
+    </div>
+  </section>
+
+  <!-- ============ 設定 ============ -->
+  <section class="view" id="v-set" role="tabpanel">
+    <div class="card">
+      <h2>アイテムの管理</h2>
+      <p class="sub" style="margin:0 0 11px">記録画面に出る選択肢です。使わないものは消すと入力が速くなります。</p>
+      <div id="itemAdmin"></div>
+    </div>
+
+    <div class="card">
+      <h2>表示する項目</h2>
+      <div class="chips" id="optRow"></div>
+    </div>
+
+    <div class="card">
+      <h2>データについて</h2>
+      <div class="privacy">🔒 記録も写真も<b>この端末の中だけ</b>に保存されます。肌の状態・写真・食事・からだの記録が
+        サーバーへ送られることはありません（一般的なサイトと同じアクセス数の集計のみ行っています）。<br>
+        ブラウザのデータを消すと記録も消えるため、ときどき書き出しておくことをおすすめします。</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn ghost sm" id="doExport">書き出す</button>
+        <button class="btn ghost sm" id="doImport">読み込む</button>
+      </div>
+      <input type="file" id="impInput" accept="application/json,.json" />
+      <p class="sub">※ 写真は書き出しに含まれません。</p>
+    </div>
+
+    <div class="card">
+      <h2>受診のときに</h2>
+      <p class="sub" style="margin:0 0 11px">記録のまとめを文章にします。皮膚科で経過を伝えるときにどうぞ。</p>
+      <button class="btn ghost sm" id="doSummary">まとめを作る</button>
+    </div>
+
+    <div class="card">
+      <h2>すべて削除</h2>
+      <button class="btn danger sm" id="doReset">記録と写真をすべて削除</button>
+    </div>
+
+    <div class="card">
+      <p class="disclaimer">ここで示す傾向は、あなた自身の記録にもとづく<b>統計的な目安</b>で、医学的な診断ではありません。
+        症状が続く・悪化する場合は皮膚科の受診をご検討ください。</p>
+    </div>
+    <div class="card">
+      <h2>読みもの</h2>
+      <p class="sub" style="margin:0 0 11px">その部位で起きやすいこと、よく言われる原因がどこまで確かなのかを整理しています。</p>
+      <div class="chips">
+        <a class="chip link" href="basho/">場所で原因は分かるのか</a>
+        <a class="chip link" href="seiri/">生理前の肌荒れ</a>
+      </div>
+      <p class="label mt">部位ごと</p>
+      <div class="chips">
+        <a class="chip link" href="odeko/">でこ</a>
+        <a class="chip link" href="komekami/">こめかみ</a>
+        <a class="chip link" href="hana/">鼻</a>
+        <a class="chip link" href="hoho/">頬</a>
+        <a class="chip link" href="kuchimoto/">口周り</a>
+        <a class="chip link" href="ago/">顎</a>
+        <a class="chip link" href="faceline/">フェイスライン</a>
+      </div>
+    </div>
+
+    <p class="site-foot">
+      <a href="https://mricky0818-maker.github.io/fashion-app/shindan/">姉妹アプリ：スタイルコンパス（骨格×パーソナルカラー診断）</a><br>
+      <a href="/about/">運営者情報・プライバシーポリシー</a><br>
+      © 肌カルテ
+    </p>
+  </section>
+</div>
+
+<nav class="tabbar" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-v="v-log"><span class="ti">📝</span>記録</button>
+  <button class="tab" role="tab" aria-selected="false" data-v="v-chart"><span class="ti">📈</span>推移</button>
+  <button class="tab" role="tab" aria-selected="false" data-v="v-insight"><span class="ti">💡</span>きづき</button>
+  <button class="tab" role="tab" aria-selected="false" data-v="v-photo"><span class="ti">📷</span>写真</button>
+  <button class="tab" role="tab" aria-selected="false" data-v="v-set"><span class="ti">⚙️</span>設定</button>
+</nav>
+
+<div class="modal" id="modal"><div class="sheet">
+  <h2 id="mdTitle"></h2>
+  <div id="mdSlot"></div>
+  <pre id="mdBody" hidden></pre>
+  <div class="row" style="margin-top:10px">
+    <button class="btn sm" id="mdOk" hidden>追加</button>
+    <button class="btn sm" id="mdCopy" hidden>コピーする</button>
+    <button class="btn ghost sm" id="mdClose">閉じる</button>
+  </div>
+</div></div>
+
+<noscript><p style="padding:20px;text-align:center">JavaScript を有効にしてください。</p></noscript>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= master data ================= */
+var LEVELS = [
+  {v:1, l:'絶不調'}, {v:2, l:'不調'}, {v:3, l:'普通'}, {v:4, l:'好調'}, {v:5, l:'絶好調'}
+];
+var SC = {1:'var(--s1)',2:'var(--s2)',3:'var(--s3)',4:'var(--s4)',5:'var(--s5)'};
+
+var AREAS = [
+  {id:'fore',   l:'でこ'},
+  {id:'temple', l:'こめかみ'},
+  {id:'nose',   l:'鼻'},
+  {id:'cheek',  l:'頬'},
+  {id:'mouth',  l:'口周り'},
+  {id:'chin',   l:'顎'},
+  {id:'jaw',    l:'フェイスライン'}
+];
+var AREA_L = {}; AREAS.forEach(function(a){ AREA_L[a.id] = a.l; });
+
+var HOW = [
+  {id:'warm',l:'ぬるま湯'},{id:'hot',l:'熱いお湯'},{id:'cold',l:'冷水'},
+  {id:'foam',l:'しっかり泡立てた'},{id:'nofoam',l:'泡立てずに'},
+  {id:'gentle',l:'やさしく洗った'},{id:'scrub',l:'ゴシゴシこすった'},
+  {id:'quick',l:'30秒以内'},{id:'long',l:'1分以上かけた'},
+  {id:'press',l:'タオルで押さえた'},{id:'rub',l:'タオルでこすった'},
+  {id:'double',l:'ダブル洗顔'},{id:'wateronly',l:'水だけ'}
+];
+var HOW_L = {}; HOW.forEach(function(h){ HOW_L[h.id] = h.l; });
+
+var CATS = [
+  {cat:'food',    l:'食べたもの'},
+  {cat:'drink',   l:'飲んだもの'},
+  {cat:'skincare',l:'スキンケア'},
+  {cat:'makeup',  l:'メイク用品'},
+  {cat:'wash',    l:'洗顔'},
+  {cat:'cleanse', l:'クレンジング'}
+];
+var CAT_L = {}; CATS.forEach(function(c){ CAT_L[c.cat] = c.l; });
+
+var PRESETS = {
+  food:['ご飯','パン','麺類','肉','魚','卵','野菜','果物','大豆製品','牛乳','ヨーグルト','チーズ',
+        'チョコレート','スナック菓子','ケーキ・洋菓子','菓子パン','揚げ物','ナッツ','辛いもの',
+        'ファストフード','コンビニ食','外食'],
+  drink:['水','お茶','コーヒー','紅茶','牛乳','ジュース','炭酸飲料','エナジードリンク',
+         'ビール','ワイン','焼酎・ウイスキー','プロテイン'],
+  skincare:['化粧水','乳液','クリーム','美容液','オイル','シートマスク','日焼け止め','ワセリン',
+            'ふきとり化粧水','ニキビ用の塗り薬','処方された薬'],
+  makeup:['化粧下地','リキッドファンデ','パウダーファンデ','クッションファンデ','BB・CCクリーム',
+          'コンシーラー','フェイスパウダー','チーク','アイメイク','リップ'],
+  wash:['洗顔フォーム','洗顔石けん','洗顔パウダー','洗顔ジェル','泡タイプ','スクラブ入り','お湯だけ'],
+  cleanse:['オイル','バーム','ジェル','クリーム','ミルク','リキッド（水）','シートタイプ']
+};
+/* この4カテゴリは「種類」の下に具体的な製品をぶら下げる。
+   食べたもの・飲んだものは種類そのものが記録単位なので分けない。 */
+var HAS_KIND = {skincare:1, makeup:1, wash:1, cleanse:1};
+var KINDS = {};
+Object.keys(HAS_KIND).forEach(function(c){ KINDS[c] = PRESETS[c].concat(['その他']); });
+
+/* ================= storage ================= */
+var KEY = 'hadaLog.v2';
+var state = {v:2, ui:{intro:true, period:false, mast:false}, items:{}, records:{}};
+try {
+  var raw = localStorage.getItem(KEY);
+  if (raw) {
+    var p = JSON.parse(raw);
+    if (p && typeof p === 'object') {
+      state.records = p.records || {};
+      state.items   = p.items || {};
+      state.ui      = Object.assign({intro:true, period:false, mast:false}, p.ui || {});
+    }
+  }
+} catch(e){}
+// 種類を持たない旧データは、その名前自体が種類だったものとして引き継ぐ
+Object.keys(state.items).forEach(function(id){
+  var it = state.items[id];
+  if (it && !it.kind) it.kind = it.name;
+});
+
+function seed(){
+  if (Object.keys(state.items).length) return;
+  Object.keys(PRESETS).forEach(function(cat){
+    PRESETS[cat].forEach(function(name, i){
+      var id = cat + '_' + i;
+      // gen = 種類だけの汎用項目。製品名を登録しない人はこれだけで使える
+      state.items[id] = {id:id, cat:cat, name:name, kind:name, gen:1};
+    });
+  });
+  persist();
+}
+function persist(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} }
+
+var saveTimer = null;
+function saved(){
+  persist();
+  var e = $('savedMsg');
+  e.classList.add('on');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){ e.classList.remove('on'); }, 1300);
+  renderStreak();
+}
+
+/* ================= helpers ================= */
+function $(id){ return document.getElementById(id); }
+function el(t, c, x){ var e=document.createElement(t); if(c) e.className=c; if(x!=null) e.textContent=x; return e; }
+function pad(n){ return n<10 ? '0'+n : ''+n; }
+function key(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function parseKey(k){ var a=k.split('-'); return new Date(+a[0], +a[1]-1, +a[2]); }
+function addDays(d,n){ var x=new Date(d.getTime()); x.setDate(x.getDate()+n); return x; }
+function dayDiff(a,b){ return Math.round((parseKey(b)-parseKey(a))/86400000); }
+var WD = ['日','月','火','水','木','金','土'];
+
+var today = new Date(); today.setHours(0,0,0,0);
+var cur = new Date(today.getTime());
+var calMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+var selArea = '';
+
+function blank(){
+  return {a:{}, sIn:'', sOut:'', food:[], drink:[], skinAM:[], skinPM:[], makeup:[],
+          washAM:'', washPM:'', cleanse:'', how:[], mast:0, period:'', memo:'', photo:''};
+}
+function norm(r){
+  var b = blank();
+  if (!r) return b;
+  b.a = r.a || {};
+  ['sIn','sOut','washAM','washPM','cleanse','period','memo','photo'].forEach(function(k){ if (r[k]) b[k]=r[k]; });
+  ['food','drink','skinAM','skinPM','makeup','how'].forEach(function(k){ if (Array.isArray(r[k])) b[k]=r[k]; });
+  b.mast = r.mast ? 1 : 0;
+  return b;
+}
+function rec(k){ return state.records[k] ? state.records[k] : blank(); }
+function isEmpty(r){
+  if (Object.keys(r.a).some(function(x){ return r.a[x]; })) return false;
+  if (r.sIn || r.sOut || r.washAM || r.washPM || r.cleanse || r.period || r.memo || r.photo || r.mast) return false;
+  return !['food','drink','skinAM','skinPM','makeup','how'].some(function(k){ return r[k].length; });
+}
+function edit(k, fn){
+  if (!state.records[k]) state.records[k] = blank();
+  fn(state.records[k]);
+  if (isEmpty(state.records[k])) delete state.records[k];
+  saved();
+}
+function toggleIn(arr, id){ var i = arr.indexOf(id); if (i>=0) arr.splice(i,1); else arr.push(id); }
+function kindOrder(cat, kind){
+  var L = KINDS[cat];
+  if (!L) return 0;
+  var i = L.indexOf(kind);
+  return i < 0 ? 998 : i;
+}
+/* withOff=true は休止中の製品も含める。分析は過去の記録を使うので必ず含める。 */
+function itemsOf(cat, withOff){
+  return Object.keys(state.items).map(function(k){ return state.items[k]; })
+    .filter(function(it){ return it.cat === cat && (withOff || !it.off); })
+    .sort(function(a,b){
+      var d = kindOrder(cat, a.kind) - kindOrder(cat, b.kind);
+      if (d) return d;
+      if (a.kind !== b.kind) return a.kind < b.kind ? -1 : 1;
+      if (!a.gen !== !b.gen) return a.gen ? -1 : 1;
+      return a.name < b.name ? -1 : 1;
+    });
+}
+function prodLabel(it){ return it.gen ? it.kind : it.name; }
+function itemName(id){ return (state.items[id] && state.items[id].name) || id; }
+
+function toMin(t){ var a = t.split(':'); return (+a[0])*60 + (+a[1]); }
+function sleepH(r){
+  if (!r.sIn || !r.sOut) return null;
+  var d = toMin(r.sOut) - toMin(r.sIn);
+  if (d <= 0) d += 1440;
+  return d/60;
+}
+function overall(r){
+  var v = [], n = 0;
+  AREAS.forEach(function(a){ if (r.a[a.id]) { v.push(r.a[a.id]); n++; } });
+  return n ? v.reduce(function(x,y){return x+y;},0)/n : null;
+}
+function avg(a){ var s=0; for (var i=0;i<a.length;i++) s+=a[i]; return s/a.length; }
+
+/* ================= face map ================= */
+var FACE = '<svg class="face" viewBox="0 0 200 224" role="img" aria-label="顔の部位マップ">'
+  + '<path class="base" d="M100,14 C138,14 160,42 160,86 C160,124 150,156 130,182 C118,198 109,208 100,208 '
+  + 'C91,208 82,198 70,182 C50,156 40,124 40,86 C40,42 62,14 100,14 Z" fill="var(--panel-2)"/>'
+  + '<path class="zone" data-a="jaw" d="M43,104 C46,142 60,172 84,193" fill="none" stroke-linecap="round" stroke-width="13"/>'
+  + '<path class="zone" data-a="jaw2" d="M157,104 C154,142 140,172 116,193" fill="none" stroke-linecap="round" stroke-width="13"/>'
+  + '<ellipse class="zone" data-a="fore"   cx="100" cy="50"  rx="43" ry="25"/>'
+  + '<ellipse class="zone" data-a="temple" cx="55"  cy="80"  rx="13" ry="16"/>'
+  + '<ellipse class="zone" data-a="temple2" cx="145" cy="80"  rx="13" ry="16"/>'
+  + '<ellipse class="zone" data-a="nose"   cx="100" cy="103" rx="14" ry="27"/>'
+  + '<ellipse class="zone" data-a="cheek"  cx="66"  cy="118" rx="21" ry="22"/>'
+  + '<ellipse class="zone" data-a="cheek2" cx="134" cy="118" rx="21" ry="22"/>'
+  + '<ellipse class="zone" data-a="mouth"  cx="100" cy="152" rx="27" ry="17"/>'
+  + '<ellipse class="zone" data-a="chin"   cx="100" cy="182" rx="21" ry="15"/>'
+  + '<path class="out" d="M100,14 C138,14 160,42 160,86 C160,124 150,156 130,182 C118,198 109,208 100,208 '
+  + 'C91,208 82,198 70,182 C50,156 40,124 40,86 C40,42 62,14 100,14 Z"/>'
+  + '</svg>';
+
+function renderFace(r){
+  var w = $('faceWrap');
+  if (!w.firstChild) {
+    w.innerHTML = FACE;
+    Array.prototype.forEach.call(w.querySelectorAll('.zone'), function(z){
+      z.setAttribute('tabindex','0');
+      var a = z.dataset.a.replace(/2$/,'');
+      z.setAttribute('aria-label', AREA_L[a]);
+      z.addEventListener('click', function(){ selArea = (selArea === a) ? '' : a; renderLog(); });
+      z.addEventListener('keydown', function(e){ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); z.click(); } });
+    });
+  }
+  Array.prototype.forEach.call(w.querySelectorAll('.zone'), function(z){
+    var a = z.dataset.a.replace(/2$/,'');
+    var v = r.a[a] || 0;
+    var col = v ? SC[v] : 'var(--line)';
+    if (z.tagName.toLowerCase() === 'path') z.setAttribute('stroke', col);
+    else z.setAttribute('fill', col);
+    z.classList.toggle('sel', selArea === a);
+  });
+}
+
+/* ================= record form ================= */
+function chip(label, on, fn, cls){
+  var b = el('button', 'chip' + (cls ? ' '+cls : ''), label);
+  b.type = 'button';
+  b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  b.addEventListener('click', function(){ fn(); renderLog(); });
+  return b;
+}
+function fill(box, nodes){ box.innerHTML=''; nodes.forEach(function(n){ box.appendChild(n); }); }
+
+/* 製品を登録していないうちは今までどおりの平らな並び。
+   1つでも登録されたら「種類」ごとの見出しつきに切り替える。 */
+function renderItemRow(boxId, cat, isOn, pick, head){
+  var box = $(boxId);
+  box.innerHTML = '';
+  var list = itemsOf(cat);
+  var grouped = HAS_KIND[cat] && list.some(function(it){ return !it.gen; });
+
+  if (!grouped) {
+    var flat = el('div','chips');
+    (head||[]).forEach(function(n){ flat.appendChild(n); });
+    list.forEach(function(it){ flat.appendChild(chip(prodLabel(it), isOn(it), function(){ pick(it); })); });
+    flat.appendChild(addChip(cat));
+    box.appendChild(flat);
+    return;
+  }
+
+  if (head && head.length) {
+    var top = el('div','chips');
+    head.forEach(function(n){ top.appendChild(n); });
+    box.appendChild(top);
+  }
+  // 見出しを立てるのは製品を登録した種類だけ。残りは今までどおり1行にまとめる
+  var order = [], byKind = {}, hasProduct = {};
+  list.forEach(function(it){
+    if (!byKind[it.kind]) { byKind[it.kind] = []; order.push(it.kind); }
+    byKind[it.kind].push(it);
+    if (!it.gen) hasProduct[it.kind] = 1;
+  });
+  order.filter(function(kd){ return hasProduct[kd]; }).forEach(function(kd){
+    var g = el('div','grp');
+    g.appendChild(el('p','gt', kd));
+    var c = el('div','chips');
+    byKind[kd].forEach(function(it){
+      c.appendChild(chip(it.gen ? '種類だけ' : it.name, isOn(it), function(){ pick(it); }));
+    });
+    var plus = el('button','chip add','＋'); plus.type='button';
+    plus.setAttribute('aria-label', kd + 'の製品を登録');
+    plus.addEventListener('click', function(){ openAdd(cat, kd); });
+    c.appendChild(plus);
+    g.appendChild(c);
+    box.appendChild(g);
+  });
+  var rest = order.filter(function(kd){ return !hasProduct[kd]; });
+  // 見出しを付けないと、直前の種類グループの続きに見えてしまう
+  if (rest.length) box.appendChild(el('p','gt','そのほかの種類'));
+  var tail = el('div','chips');
+  rest.forEach(function(kd){
+    byKind[kd].forEach(function(it){
+      tail.appendChild(chip(prodLabel(it), isOn(it), function(){ pick(it); }));
+    });
+  });
+  tail.appendChild(addChip(cat));
+  box.appendChild(tail);
+}
+function multiRow(boxId, cat, field){
+  var k = key(cur), r = rec(k);
+  renderItemRow(boxId, cat,
+    function(it){ return r[field].indexOf(it.id) >= 0; },
+    function(it){ edit(k, function(x){ toggleIn(x[field], it.id); }); },
+    HAS_KIND[cat] ? [copyChip(field, false)] : null);
+}
+function singleRow(boxId, cat, field){
+  var k = key(cur), r = rec(k);
+  var head = [ chip('しなかった', r[field] === 'none', function(){
+    edit(k, function(x){ x[field] = (x[field]==='none') ? '' : 'none'; });
+  }, 'no'), copyChip(field, true) ];
+  renderItemRow(boxId, cat,
+    function(it){ return r[field] === it.id; },
+    function(it){ edit(k, function(x){ x[field] = (x[field]===it.id) ? '' : it.id; }); },
+    head);
+}
+/* 製品が増えるほど毎日のタップが増えるので、直近の記録を丸ごと持ってこられるようにする */
+function copyChip(field, single){
+  var b = el('button','chip add','前回と同じ'); b.type='button';
+  b.addEventListener('click', function(){
+    var d = addDays(cur,-1), found = null;
+    for (var i=0;i<21;i++){
+      var raw = state.records[key(d)];
+      if (raw) {
+        var n = norm(raw);
+        if (single ? n[field] : (n[field] && n[field].length)) { found = single ? n[field] : n[field].slice(); break; }
+      }
+      d = addDays(d,-1);
+    }
+    if (found == null) { alert('コピーできる直近の記録がありません。'); return; }
+    edit(key(cur), function(x){ x[field] = found; });
+    renderLog();
+  });
+  return b;
+}
+function addChip(cat){
+  var b = el('button','chip add', HAS_KIND[cat] ? '＋ 製品を登録' : '＋ 追加');
+  b.type='button';
+  b.addEventListener('click', function(){ openAdd(cat); });
+  return b;
+}
+
+function buildAreaGrid(){
+  var g = $('areaGrid');
+  g.innerHTML = '';
+  g.appendChild(el('div','hd',''));
+  LEVELS.forEach(function(L){ g.appendChild(el('div','hd', L.l)); });
+  AREAS.forEach(function(a){
+    var nm = el('div','nm', a.l); nm.dataset.n = a.id;
+    g.appendChild(nm);
+    LEVELS.forEach(function(L){
+      var b = el('button','lv'); b.type='button';
+      b.dataset.a = a.id; b.dataset.v = L.v;
+      b.setAttribute('aria-label', a.l + '：' + L.l);
+      b.appendChild(el('i'));
+      b.addEventListener('click', function(){
+        var k = key(cur);
+        edit(k, function(r){ r.a[a.id] = (r.a[a.id] === L.v) ? 0 : L.v; });
+        selArea = a.id;
+        renderLog();
+      });
+      g.appendChild(b);
+    });
+  });
+}
+function paintAreaGrid(r){
+  Array.prototype.forEach.call($('areaGrid').querySelectorAll('.lv'), function(b){
+    var on = r.a[b.dataset.a] === +b.dataset.v;
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.style.borderColor = on ? SC[b.dataset.v] : '';
+    b.style.background  = on ? SC[b.dataset.v] : '';
+    b.firstChild.style.background = on ? '#fff' : 'var(--line)';
+  });
+  Array.prototype.forEach.call($('areaGrid').querySelectorAll('.nm'), function(n){
+    n.classList.toggle('sel', n.dataset.n === selArea);
+  });
+}
+
+function renderLog(){
+  var k = key(cur), r = rec(k);
+
+  $('dLabel').textContent = (cur.getMonth()+1)+'月'+cur.getDate()+'日（'+WD[cur.getDay()]+'）';
+  var dd = dayDiff(key(cur), key(today));
+  $('dSub').textContent = dd===0 ? '今日' : (dd===1 ? 'きのう' : dd+'日前');
+  $('dNext').disabled = (key(cur) === key(today));
+
+  renderFace(r);
+  paintAreaGrid(r);
+
+  if (document.activeElement !== $('sIn'))  $('sIn').value  = r.sIn  || '';
+  if (document.activeElement !== $('sOut')) $('sOut').value = r.sOut || '';
+  var h = sleepH(r);
+  $('sLen').textContent = h == null ? '—' : (Math.floor(h) + '時間' + Math.round((h%1)*60) + '分');
+
+  multiRow('foodRow','food','food');
+  multiRow('drinkRow','drink','drink');
+  multiRow('skinAMRow','skincare','skinAM');
+  multiRow('skinPMRow','skincare','skinPM');
+  multiRow('makeupRow','makeup','makeup');
+  singleRow('washAMRow','wash','washAM');
+  singleRow('washPMRow','wash','washPM');
+  singleRow('cleanseRow','cleanse','cleanse');
+
+  fill($('howRow'), HOW.map(function(hw){
+    return chip(hw.l, r.how.indexOf(hw.id)>=0, function(){ edit(k, function(x){ toggleIn(x.how, hw.id); }); });
+  }));
+
+  var body = [];
+  if (state.ui.mast) {
+    body.push(chip('自慰行為あり', r.mast === 1, function(){ edit(k, function(x){ x.mast = x.mast ? 0 : 1; }); }));
+  }
+  fill($('bodyRow'), body);
+  $('bodyRow').parentNode.hidden = (body.length === 0 && !state.ui.period);
+
+  $('periodBox').hidden = !state.ui.period;
+  if (state.ui.period) {
+    fill($('periodRow'), [
+      chip('今日から生理', r.period==='start', function(){ edit(k, function(x){ x.period = x.period==='start'?'':'start'; }); }, 'plum'),
+      chip('生理中',       r.period==='on',    function(){ edit(k, function(x){ x.period = x.period==='on'?'':'on'; }); }, 'plum')
+    ]);
+  }
+
+  if (document.activeElement !== $('memo')) $('memo').value = r.memo || '';
+  renderPhotoSlot(r);
+}
+
+function renderStreak(){
+  var n = 0, d = new Date(today.getTime());
+  if (!state.records[key(d)]) d = addDays(d,-1);
+  while (state.records[key(d)]) { n++; d = addDays(d,-1); }
+  var s = $('streak');
+  if (n >= 2) { s.hidden = false; s.textContent = '🔥 ' + n + '日連続'; } else { s.hidden = true; }
+}
+
+/* ================= photos ================= */
+var dbp = null;
+function db(){
+  if (dbp) return dbp;
+  dbp = new Promise(function(res, rej){
+    if (!window.indexedDB) { rej(new Error('no idb')); return; }
+    var q = indexedDB.open('hadaLog', 1);
+    q.onupgradeneeded = function(e){
+      var d = e.target.result;
+      if (!d.objectStoreNames.contains('photos')) d.createObjectStore('photos');
+    };
+    q.onsuccess = function(e){ res(e.target.result); };
+    q.onerror = function(){ rej(q.error); };
+  });
+  return dbp;
+}
+function idb(mode, fn){
+  return db().then(function(d){
+    return new Promise(function(res, rej){
+      var tx = d.transaction('photos', mode), rq = fn(tx.objectStore('photos'));
+      tx.oncomplete = function(){ res(rq ? rq.result : undefined); };
+      tx.onerror = function(){ rej(tx.error); };
+    });
+  });
+}
+function putPhoto(id,b){ return idb('readwrite', function(s){ return s.put(b,id); }); }
+function getPhoto(id){ return idb('readonly',  function(s){ return s.get(id); }); }
+function delPhoto(id){ return idb('readwrite', function(s){ return s.delete(id); }); }
+function allPhotoIds(){ return idb('readonly', function(s){ return s.getAllKeys(); }); }
+
+var urlCache = {};
+function photoURL(id){
+  if (urlCache[id]) return Promise.resolve(urlCache[id]);
+  return getPhoto(id).then(function(b){
+    if (!b) return '';
+    urlCache[id] = URL.createObjectURL(b);
+    return urlCache[id];
+  }).catch(function(){ return ''; });
+}
+function dropURL(id){ if (urlCache[id]) { URL.revokeObjectURL(urlCache[id]); delete urlCache[id]; } }
+
+function compress(file){
+  return new Promise(function(res, rej){
+    var img = new Image(), u = URL.createObjectURL(file);
+    img.onload = function(){
+      var sc = Math.min(1, 900 / Math.max(img.naturalWidth, img.naturalHeight));
+      var cv = document.createElement('canvas');
+      cv.width = Math.round(img.naturalWidth*sc); cv.height = Math.round(img.naturalHeight*sc);
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(u);
+      cv.toBlob(function(b){ b ? res(b) : rej(new Error('e')); }, 'image/jpeg', 0.72);
+    };
+    img.onerror = function(){ URL.revokeObjectURL(u); rej(new Error('e')); };
+    img.src = u;
+  });
+}
+function renderPhotoSlot(r){
+  var s = $('phSlot'); s.innerHTML = '';
+  if (r.photo) {
+    var im = el('img','ph'); im.alt = '記録した写真';
+    s.appendChild(im);
+    photoURL(r.photo).then(function(u){ if (u) im.src = u; });
+    $('phDel').hidden = false; $('phAdd').textContent = '撮り直す';
+  } else {
+    s.appendChild(el('div','empty','＋'));
+    $('phDel').hidden = true; $('phAdd').textContent = '写真を追加';
+  }
+}
+
+/* ================= charts ================= */
+function seriesLast(n){
+  var out = [];
+  for (var i=n-1;i>=0;i--){
+    var d = addDays(today,-i), k = key(d), r = state.records[k];
+    out.push({k:k, r:r ? norm(r) : null});
+  }
+  return out;
+}
+function renderHeat(){
+  var n = 28, s = seriesLast(n), h = $('heat');
+  h.innerHTML = '';
+  AREAS.forEach(function(a){
+    h.appendChild(el('div','rn', a.l));
+    var row = el('div','rr');
+    row.style.gridTemplateColumns = 'repeat(' + n + ', 1fr)';
+    s.forEach(function(p){
+      var c = el('div','c');
+      var v = p.r ? (p.r.a[a.id] || 0) : 0;
+      if (v) c.style.background = SC[v];
+      c.title = p.k + ' ' + a.l + '：' + (v ? LEVELS[v-1].l : '記録なし');
+      row.appendChild(c);
+    });
+    h.appendChild(row);
+  });
+}
+function renderChart(){
+  var n = 30, s = seriesLast(n), w = $('chartWrap');
+  w.innerHTML = '';
+  var pts = s.map(function(p){ return p.r ? overall(p.r) : null; });
+  if (pts.filter(function(v){ return v!=null; }).length < 2) {
+    w.appendChild(el('p','empty-note','2日ぶん記録するとグラフが出ます。'));
+    renderKPIs(); return;
+  }
+  var W=320, H=128, P={l:14,r:8,t:8,b:16}, iw=W-P.l-P.r, ih=H-P.t-P.b;
+  var X = function(i){ return P.l + iw*i/(n-1); };
+  var Y = function(v){ return P.t + ih - (v-1)/4*ih; };
+  var NS = 'http://www.w3.org/2000/svg';
+  var svg = document.createElementNS(NS,'svg');
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  svg.setAttribute('class','chart');
+  svg.setAttribute('role','img');
+  svg.setAttribute('aria-label','直近30日の全体スコアの推移');
+  [1,3,5].forEach(function(v){
+    var l = document.createElementNS(NS,'line');
+    l.setAttribute('x1',P.l); l.setAttribute('x2',W-P.r);
+    l.setAttribute('y1',Y(v)); l.setAttribute('y2',Y(v));
+    l.setAttribute('stroke','var(--line)'); l.setAttribute('stroke-width','1');
+    svg.appendChild(l);
+  });
+  var d='', st=false;
+  pts.forEach(function(v,i){ if (v==null) return; d += (st?' L':'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); st=true; });
+  var pa = document.createElementNS(NS,'path');
+  pa.setAttribute('d',d); pa.setAttribute('fill','none');
+  pa.setAttribute('stroke','var(--accent)'); pa.setAttribute('stroke-width','2.2');
+  pa.setAttribute('stroke-linejoin','round'); pa.setAttribute('stroke-linecap','round');
+  svg.appendChild(pa);
+  pts.forEach(function(v,i){
+    if (v==null) return;
+    var c = document.createElementNS(NS,'circle');
+    c.setAttribute('cx',X(i).toFixed(1)); c.setAttribute('cy',Y(v).toFixed(1));
+    c.setAttribute('r','2.6'); c.setAttribute('fill', SC[Math.max(1,Math.min(5,Math.round(v)))]);
+    svg.appendChild(c);
+  });
+  [[0,'30日前'],[n-1,'今日']].forEach(function(t){
+    var tx = document.createElementNS(NS,'text');
+    tx.setAttribute('x',X(t[0])); tx.setAttribute('y',H-3);
+    tx.setAttribute('fill','var(--muted)'); tx.setAttribute('font-size','8');
+    tx.setAttribute('text-anchor', t[0]===0?'start':'end');
+    tx.textContent = t[1];
+    svg.appendChild(tx);
+  });
+  w.appendChild(svg);
+  renderKPIs();
+}
+function renderKPIs(){
+  var b = $('kpis'); b.innerHTML='';
+  var days = recKeys();
+  var r7 = seriesLast(7).map(function(p){ return p.r?overall(p.r):null; }).filter(function(v){return v!=null;});
+  var a14 = seriesLast(14).map(function(p){ return p.r?overall(p.r):null; }).filter(function(v){return v!=null;});
+  var prev = a14.slice(0, Math.max(0, a14.length - r7.length));
+  function K(v,t){ var e=el('div','kpi'); e.appendChild(el('b',null,v)); e.appendChild(el('span',null,t)); return e; }
+  b.appendChild(K(days.length+'日','記録した日数'));
+  b.appendChild(K(r7.length ? avg(r7).toFixed(1) : '—','直近7日の平均'));
+  var tr = '—';
+  if (r7.length>=3 && prev.length>=3){
+    var d = avg(r7)-avg(prev);
+    tr = d>0.2 ? '↑ 上向き' : (d<-0.2 ? '↓ 下向き' : '→ 横ばい');
+  }
+  b.appendChild(K(tr,'前の週とくらべて'));
+}
+function renderAreaBars(){
+  var box = $('areaBars'); box.innerHTML='';
+  var ks = recKeys();
+  var any = false;
+  AREAS.forEach(function(a){
+    var v = ks.map(function(k){ return norm(state.records[k]).a[a.id] || 0; }).filter(function(x){ return x; });
+    var b = el('div','bar');
+    b.appendChild(el('span','t', a.l));
+    var tr = el('div','track'), fl = el('div','fill');
+    if (v.length){
+      any = true;
+      var m = avg(v);
+      fl.style.width = Math.round((m-1)/4*100)+'%';
+      fl.style.background = SC[Math.max(1,Math.min(5,Math.round(m)))];
+      b.appendChild(tr); tr.appendChild(fl);
+      b.appendChild(el('span','v', m.toFixed(1)));
+    } else {
+      b.appendChild(tr); tr.appendChild(fl);
+      b.appendChild(el('span','v','—'));
+    }
+    box.appendChild(b);
+  });
+  if (!any) { box.innerHTML=''; box.appendChild(el('p','empty-note','まだ記録がありません。')); }
+}
+function renderCal(){
+  $('mLabel').textContent = calMonth.getFullYear()+'年'+(calMonth.getMonth()+1)+'月';
+  var g = $('calGrid'); g.innerHTML='';
+  WD.forEach(function(w){ g.appendChild(el('div','dow',w)); });
+  var first = new Date(calMonth.getFullYear(), calMonth.getMonth(), 1);
+  for (var i=0;i<first.getDay();i++) g.appendChild(el('div','cell blank'));
+  var last = new Date(calMonth.getFullYear(), calMonth.getMonth()+1, 0).getDate();
+  for (var d=1; d<=last; d++){
+    (function(dt){
+      var k = key(dt), r = state.records[k], c = el('button','cell'); c.type='button';
+      c.textContent = dt.getDate();
+      if (k===key(today)) c.classList.add('today');
+      if (r) {
+        var o = overall(norm(r));
+        if (o) { c.classList.add('has'); c.style.background = SC[Math.max(1,Math.min(5,Math.round(o)))]; }
+      }
+      if (dt > today) c.style.opacity = .35;
+      c.addEventListener('click', function(){ if (dt>today) return; cur = dt; renderLog(); show('v-log'); });
+      g.appendChild(c);
+    })(new Date(calMonth.getFullYear(), calMonth.getMonth(), d));
+  }
+}
+
+/* ================= analysis ================= */
+function recKeys(){
+  return Object.keys(state.records).filter(function(k){ return overall(norm(state.records[k])) != null; }).sort();
+}
+function stat(v){
+  var n=v.length, m=avg(v), s=0;
+  for (var i=0;i<n;i++) s += (v[i]-m)*(v[i]-m);
+  return {n:n, m:m, va: n>1 ? s/(n-1) : 0};
+}
+/* Welch's t-test. p is two-tailed. */
+function compare(A,B){
+  var a=stat(A), b=stat(B);
+  var sa = a.va/a.n, sb = b.va/b.n, se = Math.sqrt(sa+sb), diff = a.m-b.m;
+  if (!(se > 0)) return {diff:diff, t:0, p:1, nA:a.n, nB:b.n};
+  var df = (sa+sb)*(sa+sb) / (sa*sa/(a.n-1) + sb*sb/(b.n-1));
+  var t = diff/se;
+  return {diff:diff, t:t, p:tp(t, df), nA:a.n, nB:b.n};
+}
+function gammaln(x){
+  var cof=[76.18009172947146,-86.50532032941677,24.01409824083091,
+           -1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  var y=x, tmp=x+5.5;
+  tmp -= (x+0.5)*Math.log(tmp);
+  var ser=1.000000000190015;
+  for (var j=0;j<6;j++) ser += cof[j]/(++y);
+  return -tmp + Math.log(2.5066282746310005*ser/x);
+}
+function betacf(a,b,x){
+  var FPMIN=1e-30, EPS=3e-9, qab=a+b, qap=a+1, qam=a-1;
+  var c=1, d=1-qab*x/qap;
+  if (Math.abs(d)<FPMIN) d=FPMIN;
+  d=1/d; var h=d;
+  for (var m=1;m<=200;m++){
+    var m2=2*m, aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d; if (Math.abs(d)<FPMIN) d=FPMIN;
+    c=1+aa/c; if (Math.abs(c)<FPMIN) c=FPMIN;
+    d=1/d; h*=d*c;
+    aa = -(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+    d=1+aa*d; if (Math.abs(d)<FPMIN) d=FPMIN;
+    c=1+aa/c; if (Math.abs(c)<FPMIN) c=FPMIN;
+    d=1/d;
+    var del=d*c; h*=del;
+    if (Math.abs(del-1)<EPS) break;
+  }
+  return h;
+}
+function betai(a,b,x){
+  if (x<=0) return 0;
+  if (x>=1) return 1;
+  var bt = Math.exp(gammaln(a+b)-gammaln(a)-gammaln(b)+a*Math.log(x)+b*Math.log(1-x));
+  return (x < (a+1)/(a+b+2)) ? bt*betacf(a,b,x)/a : 1-bt*betacf(b,a,1-x)/b;
+}
+function tp(t, df){
+  if (!isFinite(t) || !(df>0)) return 1;
+  return betai(df/2, 0.5, df/(df+t*t));
+}
+function quantile(sorted, p){
+  if (!sorted.length) return Infinity;
+  var i = (sorted.length-1) * p, lo = Math.floor(i), hi = Math.ceil(i);
+  return sorted[lo] + (sorted[hi]-sorted[lo]) * (i-lo);
+}
+/* 製品ごと（どの化粧水か）と、種類ごと（化粧水ぜんぶ）の両方を候補にする。
+   種類ごとは、その種類に2つ以上ぶら下がっているときだけ（1つなら製品と同じ検定になる）。 */
+function inAny(ids, arr){
+  for (var i=0;i<ids.length;i++) if (arr.indexOf(ids[i]) >= 0) return true;
+  return false;
+}
+function kindCandidates(cat, group, test){
+  var out = [], byKind = {};
+  itemsOf(cat, true).forEach(function(it){ (byKind[it.kind] = byKind[it.kind] || []).push(it.id); });
+  Object.keys(byKind).forEach(function(kd){
+    if (byKind[kd].length < 2) return;
+    var ids = byKind[kd];
+    out.push({label: kd + '（種類ぜんぶ）', group:group, lags:LAG_AFTER,
+      test:function(r){ return test(r, ids); }});
+  });
+  return out;
+}
+/* 肌は「その日の朝・洗顔前」に測る決まりなので、同じ日付に入っている出来事の
+   ほとんどは測定より後に起きている。当日(lag 0)の検定を回すと時間が逆向きになり、
+   「荒れた朝だったからチョコを食べた」を「チョコが原因」として出しかねない。
+   測定より前に確定しているもの（前の晩の睡眠・生理）だけ lag 0 を許す。
+   食べ物は反応が遅れることがあるので2日後まで見る。 */
+var LAG_BEFORE = [0,1];   // 測定より前に起きたこと
+var LAG_AFTER  = [1];     // 測定より後に起きたこと → 効くとしたら翌朝
+var LAG_FOOD   = [1,2];
+var LAG_L = {0:'その朝', 1:'翌朝', 2:'2日後の朝'};
+function lagLabel(l){ return LAG_L[l] || ('+'+l+'日'); }
+
+function candidates(){
+  var out = [];
+  ['food','drink'].forEach(function(cat){
+    itemsOf(cat, true).forEach(function(it){
+      out.push({label:it.name, group:CAT_L[cat], lags:LAG_FOOD,
+        test:function(r){ return r[cat].indexOf(it.id)>=0; }});
+    });
+  });
+  itemsOf('skincare', true).forEach(function(it){
+    out.push({label:prodLabel(it), group:'スキンケア', prod:1, kindKey:'skincare/'+it.kind, lags:LAG_AFTER,
+      test:function(r){ return r.skinAM.indexOf(it.id)>=0 || r.skinPM.indexOf(it.id)>=0; }});
+  });
+  itemsOf('makeup', true).forEach(function(it){
+    out.push({label:prodLabel(it), group:'メイク', prod:1, kindKey:'makeup/'+it.kind, lags:LAG_AFTER,
+      test:function(r){ return r.makeup.indexOf(it.id)>=0; }});
+  });
+  itemsOf('wash', true).forEach(function(it){
+    out.push({label:prodLabel(it)+'で洗顔', group:'洗顔', prod:1, kindKey:'wash/'+it.kind, lags:LAG_AFTER,
+      test:function(r){ return r.washAM===it.id || r.washPM===it.id; }});
+  });
+  out.push({label:'夜の洗顔をしなかった', group:'洗顔', lags:LAG_AFTER, test:function(r){ return r.washPM==='none'; }});
+  out.push({label:'朝の洗顔をしなかった', group:'洗顔', lags:LAG_AFTER, test:function(r){ return r.washAM==='none'; }});
+  itemsOf('cleanse', true).forEach(function(it){
+    out.push({label:'クレンジング：'+prodLabel(it), group:'クレンジング', prod:1, kindKey:'cleanse/'+it.kind,
+      lags:LAG_AFTER, test:function(r){ return r.cleanse===it.id; }});
+  });
+  out.push({label:'クレンジングをしなかった', group:'クレンジング', lags:LAG_AFTER, test:function(r){ return r.cleanse==='none'; }});
+  out = out
+    .concat(kindCandidates('skincare','スキンケア', function(r,ids){ return inAny(ids,r.skinAM) || inAny(ids,r.skinPM); }))
+    .concat(kindCandidates('makeup','メイク',       function(r,ids){ return inAny(ids,r.makeup); }))
+    .concat(kindCandidates('wash','洗顔',           function(r,ids){ return ids.indexOf(r.washAM)>=0 || ids.indexOf(r.washPM)>=0; }))
+    .concat(kindCandidates('cleanse','クレンジング', function(r,ids){ return ids.indexOf(r.cleanse)>=0; }));
+  HOW.forEach(function(h){
+    out.push({label:h.l, group:'洗いかた', lags:LAG_AFTER, test:function(r){ return r.how.indexOf(h.id)>=0; }});
+  });
+  // 睡眠は「前の晩」なので朝の測定より前に終わっている＝当日を見てよい
+  out.push({label:'睡眠が6時間未満', group:'睡眠', pair:'sleep', lags:LAG_BEFORE,
+    test:function(r){ var h=sleepH(r); return h!=null && h<6; }});
+  out.push({label:'睡眠が7時間以上', group:'睡眠', pair:'sleep', lags:LAG_BEFORE,
+    test:function(r){ var h=sleepH(r); return h!=null && h>=7; }});
+  if (state.ui.mast) out.push({label:'自慰行為あり', group:'からだ', lags:LAG_FOOD,
+    test:function(r){ return r.mast===1; }});
+  if (state.ui.period) {
+    out.push({label:'生理中', group:'からだ', lags:LAG_BEFORE, test:function(r){ return r.period==='on'||r.period==='start'; }});
+  }
+  return out;
+}
+var TARGETS = [{id:'all', l:'全体'}].concat(AREAS);
+function targetScore(r, t){
+  return t.id==='all' ? overall(r) : (r.a[t.id] || null);
+}
+var MIN_DAYS = 21;   // これ未満だと並べ替えの回数が足りず、判定そのものが成り立たない
+var MIN_A = 8;       // 少なくともこの日数はあてはまっていること
+var MIN_B = 12;      // 比較相手の日数
+var MIN_DIFF = 0.5;  // 5段階で半段以上の差がないと実用上の意味が薄い
+var ALPHA = 0.05;    // 「1つでも誤って断定する」確率の上限（全候補まとめて）
+                     // 0.10 だと実測で 90日 15% まで出た。原因を名指しする以上、
+                     // 見逃しより誤検出を嫌って厳しめに寄せている。
+var LEAD_P = 0.05;   // 候補どまりとして参考表示する水準
+var MAX_SHIFTS = 150;
+
+/* 候補 × 部位 × 当日/翌日 で1000通り以上を総当たりするので、
+   素朴に p<0.05 を拾うと偶然だけで毎回「発見」が出てしまう。
+   そこで、記録の並びを丸ごと巡回シフトして「関係がない世界」を実際に作り、
+   そこで出る |t| の最大値の分布と比べる（Westfall-Young の maxT）。
+   巡回シフトなら、肌の調子が数日続くという性質も壊さずに帰無分布が作れる。 */
+function buildMatrix(){
+  var ks = recKeys();
+  var start = parseKey(ks[0]);
+  var D = dayDiff(ks[0], ks[ks.length-1]) + 1;
+  var byIdx = new Array(D);
+  for (var i=0;i<D;i++){
+    var r = state.records[key(addDays(start,i))];
+    byIdx[i] = r ? norm(r) : null;
+  }
+  var Y = TARGETS.map(function(t){
+    var arr = new Float64Array(D);
+    for (var i=0;i<D;i++){
+      var v = byIdx[i] ? targetScore(byIdx[i], t) : null;
+      arr[i] = (v == null) ? NaN : v;
+    }
+    return arr;
+  });
+  var cands = candidates();
+  var X = cands.map(function(c){
+    var arr = new Int8Array(D);          // 0=記録なし 1=あてはまる 2=あてはまらない
+    for (var i=0;i<D;i++) arr[i] = byIdx[i] ? (c.test(byIdx[i]) ? 1 : 2) : 0;
+    return arr;
+  });
+  return {D:D, Y:Y, X:X, cands:cands};
+}
+function tstat(x, y, D, lag, shift){
+  var nA=0,sA=0,qA=0,nB=0,sB=0,qB=0;
+  for (var i=0;i<D;i++){
+    var m = x[i];
+    if (!m) continue;
+    var v = y[(i+lag+shift) % D];
+    if (v !== v) continue;               // NaN = その日は記録なし
+    if (m === 1){ nA++; sA+=v; qA+=v*v; } else { nB++; sB+=v; qB+=v*v; }
+  }
+  if (nA < MIN_A || nB < MIN_B) return null;
+  var mA=sA/nA, mB=sB/nB;
+  var vA=(qA-nA*mA*mA)/(nA-1), vB=(qB-nB*mB*mB)/(nB-1);
+  var sa=vA/nA, sb=vB/nB, se=Math.sqrt(sa+sb);
+  if (!(se>0)) return null;
+  var df=(sa+sb)*(sa+sb)/(sa*sa/(nA-1)+sb*sb/(nB-1));
+  return {t:(mA-mB)/se, diff:mA-mB, nA:nA, nB:nB, df:df};
+}
+
+var anCache = {ver:'', val:null};
+/* 内容そのものから鍵を作る。日数だけを鍵にすると、過去の記録を直したときに
+   古い分析が返ってしまう。 */
+function dataHash(){
+  var s = JSON.stringify(state.records) + '#' + Object.keys(state.items).sort().join(',');
+  var h = 2166136261;
+  for (var i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h>>>0).toString(36) + ':' + s.length;
+}
+function analyze(){
+  var ks = recKeys();
+  if (ks.length < MIN_DAYS) return {ready:false, days:ks.length, need:MIN_DAYS-ks.length, hits:[], leads:[]};
+  var ver = dataHash();
+  if (anCache.ver === ver) return anCache.val;
+
+  var M = buildMatrix(), C = M.cands.length, T = TARGETS.length, D = M.D;
+
+  // 実際の並びでの、候補ごとの最良の組み合わせ
+  var obs = [];
+  for (var c=0;c<C;c++){
+    var best = null, lags = M.cands[c].lags || LAG_AFTER;
+    for (var t=0;t<T;t++) for (var li=0;li<lags.length;li++){
+      var L = lags[li];
+      var r = tstat(M.X[c], M.Y[t], D, L, 0);
+      if (!r) continue;
+      if (!best || Math.abs(r.t) > Math.abs(best.t)) {
+        best = {t:r.t, diff:r.diff, nA:r.nA, nB:r.nB, df:r.df, target:TARGETS[t].l, lag:L};
+      }
+    }
+    if (best) {
+      best.label = M.cands[c].label; best.group = M.cands[c].group; best.pair = M.cands[c].pair || null;
+      best.prod = M.cands[c].prod || 0; best.kindKey = M.cands[c].kindKey || null;
+      best.p = tp(best.t, best.df);
+    }
+    obs.push(best);
+  }
+
+  // 「関係がない世界」を巡回シフトで作る。lag と紛れないよう前後3日ぶんは使わない。
+  var shifts = [], lo = 4, hi = D - 4;
+  if (hi > lo) {
+    var step = Math.max(1, Math.ceil((hi-lo+1) / MAX_SHIFTS));
+    for (var s=lo; s<=hi; s+=step) shifts.push(s);
+  }
+  if (shifts.length < 8) return finish(ks, obs, [], []);
+
+  var nullMax = [], nullOwn = new Array(C);
+  for (var c2=0;c2<C;c2++) nullOwn[c2] = 0;
+
+  shifts.forEach(function(s){
+    var mx = 0;
+    for (var c=0;c<C;c++){
+      if (!obs[c]) continue;
+      var own = 0, lg = M.cands[c].lags || LAG_AFTER;
+      for (var t=0;t<T;t++) for (var li=0;li<lg.length;li++){
+        var r = tstat(M.X[c], M.Y[t], D, lg[li], s);
+        if (!r) continue;
+        var a = Math.abs(r.t);
+        if (a > own) own = a;
+      }
+      if (own >= Math.abs(obs[c].t)) nullOwn[c]++;   // 候補ごとの較正（部位・当日翌日ぶんだけ補正）
+      if (own > mx) mx = own;
+    }
+    nullMax.push(mx);
+  });
+  var S = shifts.length;
+  nullMax.sort(function(a,b){ return a-b; });
+
+  obs.forEach(function(f, c){
+    if (!f) return;
+    var ge = 0;
+    for (var i=0;i<S;i++) if (nullMax[i] >= Math.abs(f.t)) ge++;
+    f.pFam = (1+ge) / (1+S);              // 全候補まとめての調整 p（これが本命の判定）
+    f.pOwn = (1+nullOwn[c]) / (1+S);      // その候補だけを見たときの p（参考表示用）
+  });
+  return finish(ks, obs, nullMax, shifts, ver);
+}
+function finish(ks, obs, nullMax, shifts, ver){
+  var list = obs.filter(Boolean).filter(function(f){ return Math.abs(f.diff) >= MIN_DIFF; });
+
+  // 「睡眠6時間未満」と「7時間以上」のような裏返しの組は強いほうだけ残す
+  var byPair = {};
+  list = list.filter(function(f){
+    if (!f.pair) return true;
+    var prev = byPair[f.pair];
+    if (prev && Math.abs(prev.t) >= Math.abs(f.t)) return false;
+    if (prev) prev.drop = true;
+    byPair[f.pair] = f;
+    return true;
+  }).filter(function(f){ return !f.drop; });
+
+  var hits = list.filter(function(f){ return f.pFam != null && f.pFam <= ALPHA; })
+                 .sort(function(a,b){ return Math.abs(b.t)-Math.abs(a.t); }).slice(0,8);
+
+  /* 同じ種類の製品は交互に使うので互いに排他になりやすい。
+     片方が悪いと、もう片方が「良い」として裏返しに出てしまうため、その旨を添える。 */
+  hits.forEach(function(f){
+    if (!f.prod || f.diff <= 0 || !f.kindKey) return;
+    for (var i=0;i<hits.length;i++){
+      var g = hits[i];
+      if (g !== f && g.prod && g.kindKey === f.kindKey && g.target === f.target && g.lag === f.lag && g.diff < 0) {
+        f.swap = g.label;
+        break;
+      }
+    }
+  });
+
+  var hit = {};
+  hits.forEach(function(f){ hit[f.label] = 1; });
+  var leads = list.filter(function(f){ return !hit[f.label] && f.pOwn != null && f.pOwn <= LEAD_P; })
+                  .sort(function(a,b){ return a.pOwn - b.pOwn; }).slice(0,5);
+
+  var val = {ready:true, days:ks.length, hits:hits, leads:leads,
+             tested:list.length, shifts:shifts.length,
+             resolution: shifts.length ? 1/(1+shifts.length) : null};
+  if (ver) { anCache.ver = ver; anCache.val = val; }
+  return val;
+}
+function findings(){ return analyze().hits; }
+function cycleInfo(){
+  if (!state.ui.period) return null;
+  var ks = recKeys();
+  var starts = Object.keys(state.records).filter(function(k){ return norm(state.records[k]).period==='start'; }).sort();
+  if (starts.length < 2) return null;
+  var A=[], B=[];
+  ks.forEach(function(k){
+    var s = overall(norm(state.records[k]));
+    var ns = null;
+    for (var i=0;i<starts.length;i++){ if (starts[i] > k) { ns = starts[i]; break; } }
+    var pre = false;
+    if (ns) { var d = dayDiff(k, ns); pre = (d>=1 && d<=5); }
+    (pre?A:B).push(s);
+  });
+  var lens = [];
+  for (var i=1;i<starts.length;i++){ var d=dayDiff(starts[i-1],starts[i]); if (d>=18 && d<=60) lens.push(d); }
+  var cm = (A.length>=MIN_A && B.length>=MIN_B) ? compare(A,B) : null;
+  return {
+    pre: (cm && cm.p < 0.05 && Math.abs(cm.diff) >= MIN_DIFF) ? cm : null,
+    cycleLen: lens.length ? Math.round(avg(lens)) : null
+  };
+}
+
+function renderInsights(){
+  var ks = recKeys();
+  // 1年ぶんたまると計算に1秒近くかかるので、先に画面を描いてから計算する
+  if (ks.length >= MIN_DAYS && anCache.ver !== dataHash()) {
+    var b0 = $('insightBody');
+    b0.innerHTML = '';
+    var wait = el('div','card');
+    wait.appendChild(el('h2',null,'計算しています…'));
+    wait.appendChild(el('p','sub','記録の並びを何通りもずらして、偶然どこまで差が出るかを確かめています。'));
+    b0.appendChild(wait);
+    setTimeout(paintInsights, 30);
+    return;
+  }
+  paintInsights();
+}
+function paintInsights(){
+  var body = $('insightBody'); body.innerHTML='';
+  var ks = recKeys();
+
+  if (ks.length < MIN_DAYS) {
+    var c = el('div','card');
+    c.appendChild(el('h2',null,'あと'+(MIN_DAYS-ks.length)+'日で分析がはじまります'));
+    c.appendChild(el('p','lede',MIN_DAYS+'日ぶんの記録がたまると、食べたもの・睡眠・スキンケア・洗顔のうち何が、どの部位に効いているかを計算して表示します。'));
+    var pr = el('div','progress'), i2 = el('i');
+    i2.style.width = Math.round(ks.length/MIN_DAYS*100)+'%'; pr.appendChild(i2);
+    c.appendChild(pr);
+    c.appendChild(el('p','sub','記録ずみ '+ks.length+' / '+MIN_DAYS+' 日'));
+    body.appendChild(c);
+    return;
+  }
+
+  var res = analyze();
+  var card = el('div','card');
+  card.appendChild(el('h2',null,'肌の調子と関係がありそうなもの'));
+  if (!res.hits.length) {
+    card.appendChild(el('p','lede','いまのところ、偶然では説明しにくいほどはっきりした関係は見つかっていません。'
+      + '記録が増えるほど、小さな影響も見つけられるようになります。'));
+  } else {
+    res.hits.forEach(function(f){
+      var bad = f.diff < 0;
+      var w = el('div','ins '+(bad?'bad':'good'));
+      var h = el('p','h');
+      h.textContent = (bad?'⚠️ ':'✨ ')+'「'+f.label+'」の'+lagLabel(f.lag)
+        +'は【'+f.target+'】が平均 '+(f.diff>0?'+':'')+f.diff.toFixed(1)+'（'+(bad?'落ちる':'良い')+'）';
+      h.appendChild(el('span','tag', f.pFam <= 0.03 ? 'かなり確か' : 'はっきりした傾向'));
+      w.appendChild(h);
+      w.appendChild(el('p','d','あてはまった '+f.nA+'日 と、それ以外の '+f.nB+'日 の比較（'+f.group+'）'));
+      if (f.swap) {
+        w.appendChild(el('p','d','↩︎ 同じ種類の「'+f.swap+'」と入れ替わりで使っているようです。'
+          + 'こちらが良いというより、そちらが合っていないだけかもしれません。'));
+      }
+      card.appendChild(w);
+    });
+    card.appendChild(el('p','sub','※ 記録の並びを'+res.shifts+'通りにずらして「関係がない場合に偶然どこまで差が出るか」を実際に計算し、'
+      + 'それを超えたものだけを出しています。'));
+  }
+  card.appendChild(el('p','sub','※ あなた自身の記録にもとづく統計的な目安です。いつも一緒に起きている別の原因が'
+    + '混ざっている可能性があります（例：外食した日はお酒も飲んでいる）。医学的な診断ではありません。'));
+  body.appendChild(card);
+
+  if (res.leads.length) {
+    var lead = el('div','card');
+    lead.appendChild(el('h2',null,'まだ確定していない候補'));
+    lead.appendChild(el('p','lede','差そのものは出ていますが、'+res.tested+'項目を見比べた中では偶然の範囲を出ていません。'
+      + 'いまの段階で原因と決めつけないでください。記録が増えると判定できます。'));
+    res.leads.forEach(function(f){
+      lead.appendChild(el('p','d','・'+f.label+'（'+lagLabel(f.lag)+'／'+f.target+'）'
+        + ' 平均 '+(f.diff>0?'+':'')+f.diff.toFixed(1)+'　該当'+f.nA+'日'));
+    });
+    body.appendChild(lead);
+  }
+
+  var ci = cycleInfo();
+  if (ci && ci.pre) {
+    var cc = el('div','card');
+    cc.appendChild(el('h2',null,'生理周期との関係'));
+    var bad2 = ci.pre.diff<0;
+    var w2 = el('div','ins '+(bad2?'bad':'good'));
+    var h2 = el('p','h');
+    h2.textContent = (bad2?'⚠️ ':'✨ ')+'生理が始まる5日前は、ほかの日より平均 '
+      +(ci.pre.diff>0?'+':'')+ci.pre.diff.toFixed(1);
+    w2.appendChild(h2);
+    w2.appendChild(el('p','d','生理前 '+ci.pre.nA+'日 と、それ以外 '+ci.pre.nB+'日 の比較。'));
+    cc.appendChild(w2);
+    if (ci.cycleLen) cc.appendChild(el('p','sub','平均周期：約'+ci.cycleLen+'日'));
+    body.appendChild(cc);
+  }
+}
+
+/* ================= photo view ================= */
+var picked = [];
+function renderPhotos(){
+  var g = $('pGrid'); g.innerHTML='';
+  var ks = Object.keys(state.records).filter(function(k){ return norm(state.records[k]).photo; }).sort().reverse();
+  $('pEmpty').hidden = ks.length>0;
+  picked = picked.filter(function(k){ return ks.indexOf(k)>=0; });
+  ks.slice(0,90).forEach(function(k){
+    var b = el('button','pitem'); b.type='button';
+    b.setAttribute('aria-pressed', picked.indexOf(k)>=0 ? 'true':'false');
+    var im = el('img'); im.alt = k+'の写真'; im.loading='lazy';
+    b.appendChild(im);
+    b.appendChild(el('span','cap', k.slice(5).replace('-','/')));
+    photoURL(norm(state.records[k]).photo).then(function(u){ if (u) im.src=u; });
+    b.addEventListener('click', function(){
+      var i = picked.indexOf(k);
+      if (i>=0) picked.splice(i,1); else { picked.push(k); if (picked.length>2) picked.shift(); }
+      renderPhotos();
+    });
+    g.appendChild(b);
+  });
+  var w = $('cmpWrap'); w.innerHTML='';
+  if (picked.length===2){
+    var two = picked.slice().sort(), box = el('div','cmp');
+    two.forEach(function(k){
+      var f = document.createElement('figure'), im = el('img');
+      im.alt = k+'の写真';
+      f.appendChild(im);
+      f.appendChild(el('figcaption',null,k.replace(/-/g,'/')));
+      photoURL(norm(state.records[k]).photo).then(function(u){ if (u) im.src=u; });
+      box.appendChild(f);
+    });
+    w.appendChild(box);
+    var p = el('p','sub', dayDiff(two[0],two[1])+'日間の変化');
+    p.style.textAlign='center'; p.style.marginBottom='10px';
+    w.appendChild(p);
+  }
+}
+
+/* ================= settings ================= */
+function renderAdmin(){
+  var box = $('itemAdmin'); box.innerHTML='';
+  CATS.forEach(function(c){
+    var g = el('div','grp');
+    g.appendChild(el('p','gt', c.l));
+    var list = itemsOf(c.cat, true);
+    if (!list.length) g.appendChild(el('p','sub','（なし）'));
+    var lastKind = null;
+    list.forEach(function(it){
+      if (HAS_KIND[c.cat] && it.kind !== lastKind) {
+        lastKind = it.kind;
+        var kl = el('p','kindhead', it.kind);
+        g.appendChild(kl);
+      }
+      var line = el('div','itemline');
+      var nm = el('span', null, it.gen ? '種類だけ' : it.name);
+      if (it.off) { nm.style.opacity = '.4'; nm.textContent += '（休止中）'; }
+      line.appendChild(nm);
+      var t = el('button','x', it.off ? '再開' : '休止'); t.type='button';
+      t.style.color = 'var(--muted)'; t.style.marginLeft = 'auto';
+      t.title = '記録画面に出さなくなります。過去の記録と分析はそのまま残ります。';
+      t.addEventListener('click', function(){
+        it.off = it.off ? 0 : 1; persist(); renderAdmin(); renderLog();
+      });
+      line.appendChild(t);
+      var x = el('button','x','削除'); x.type='button'; x.style.marginLeft = '14px';
+      x.addEventListener('click', function(){
+        if (!confirm('「'+(it.gen?it.kind:it.name)+'」を削除しますか？\n（過去の記録に残っている分はそのままです。使わなくなっただけなら「休止」がおすすめです）')) return;
+        delete state.items[it.id]; persist(); renderAdmin(); renderLog();
+      });
+      line.appendChild(x);
+      g.appendChild(line);
+    });
+    var add = el('button','chip add', HAS_KIND[c.cat] ? '＋ 製品を登録' : '＋ 追加'); add.type='button';
+    add.style.marginTop='10px';
+    add.addEventListener('click', function(){ openAdd(c.cat); });
+    g.appendChild(add);
+    box.appendChild(g);
+  });
+}
+function renderOpts(){
+  fill($('optRow'), [
+    chip('自慰行為の記録', state.ui.mast, function(){ state.ui.mast = !state.ui.mast; persist(); renderOpts(); }),
+    chip('生理の記録',     state.ui.period, function(){ state.ui.period = !state.ui.period; persist(); renderOpts(); })
+  ]);
+}
+
+/* ================= modal ================= */
+function closeModal(){
+  $('modal').classList.remove('on');
+  $('mdSlot').innerHTML=''; $('mdBody').hidden = true;
+  $('mdOk').hidden = true; $('mdCopy').hidden = true;
+}
+var HINT = {
+  skincare:'例：ハトムギ化粧水（ナチュリエ）',
+  makeup:'例：マシュマロフィニッシュパウダー（キャンメイク）',
+  wash:'例：パーフェクトホイップ（センカ）',
+  cleanse:'例：ソフティモ クレンジングオイル'
+};
+function openAdd(cat, presetKind){
+  var withKind = !!HAS_KIND[cat];
+  var slot = $('mdSlot');
+  slot.innerHTML = '';
+  $('mdTitle').textContent = withKind ? (CAT_L[cat] + 'の製品を登録') : (CAT_L[cat] + 'を追加');
+  var chosen = presetKind || (withKind ? KINDS[cat][0] : '');
+
+  if (withKind) {
+    slot.appendChild(el('p','label','種類'));
+    var kb = el('div','chips');
+    slot.appendChild(kb);
+    (function paint(){
+      kb.innerHTML = '';
+      KINDS[cat].forEach(function(kd){
+        var b = el('button','chip',kd); b.type='button';
+        b.setAttribute('aria-pressed', kd === chosen ? 'true' : 'false');
+        b.addEventListener('click', function(){ chosen = kd; paint(); });
+        kb.appendChild(b);
+      });
+    })();
+    var lb = el('p','label mt','製品名');
+    lb.appendChild(el('span','opt',' （メーカー名も入れておくと後で見分けやすいです）'));
+    slot.appendChild(lb);
+  }
+  var inp = document.createElement('input');
+  inp.type = 'text';
+  inp.placeholder = withKind ? (HINT[cat] || '製品名') : '名前';
+  slot.appendChild(inp);
+  if (withKind) slot.appendChild(el('p','sub','登録すると、その製品を使った日だけを取り出して分析できるようになります。'));
+
+  $('mdBody').hidden = true; $('mdCopy').hidden = true;
+  var ok = $('mdOk'); ok.hidden = false; ok.textContent = '登録';
+  function commit(){
+    var v = inp.value.trim();
+    if (!v) { inp.focus(); return; }
+    var id = 'u_' + cat + '_' + Object.keys(state.items).length + '_' + Math.random().toString(36).slice(2,6);
+    state.items[id] = {id:id, cat:cat, name:v, kind: withKind ? chosen : v};
+    persist(); closeModal(); renderLog(); renderAdmin();
+  }
+  ok.onclick = commit;
+  inp.addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); commit(); } });
+  $('modal').classList.add('on');
+  setTimeout(function(){ inp.focus(); }, 60);
+}
+function openText(title, text){
+  $('mdTitle').textContent = title;
+  $('mdSlot').innerHTML='';
+  $('mdBody').hidden = false; $('mdBody').textContent = text;
+  $('mdOk').hidden = true; $('mdCopy').hidden = false;
+  $('modal').classList.add('on');
+}
+
+/* ================= summary ================= */
+function buildSummary(){
+  var ks = recKeys();
+  if (!ks.length) return '記録がまだありません。';
+  var L = [];
+  L.push('■ 肌の記録まとめ');
+  L.push('期間：'+ks[0].replace(/-/g,'/')+' 〜 '+ks[ks.length-1].replace(/-/g,'/')+'（記録 '+ks.length+'日）');
+  L.push('');
+  L.push('■ 部位ごとの平均（5がいちばん良い）');
+  AREAS.forEach(function(a){
+    var v = ks.map(function(k){ return norm(state.records[k]).a[a.id]||0; }).filter(function(x){return x;});
+    if (v.length) L.push('・'+a.l+'：'+avg(v).toFixed(1)+'（記録 '+v.length+'日）');
+  });
+  L.push('');
+  var sl = ks.map(function(k){ return sleepH(norm(state.records[k])); }).filter(function(x){ return x!=null; });
+  if (sl.length) { L.push('■ 睡眠'); L.push('・平均睡眠時間：'+avg(sl).toFixed(1)+'時間（記録 '+sl.length+'日）'); L.push(''); }
+  var fs = findings();
+  if (fs.length) {
+    L.push('■ 記録上、肌の状態と関係がみられたもの');
+    fs.forEach(function(f){
+      L.push('・'+f.label+'（'+lagLabel(f.lag)+'／'+f.target+'）：平均 '+(f.diff>0?'+':'')+f.diff.toFixed(1)
+        +'　該当'+f.nA+'日 / その他'+f.nB+'日');
+    });
+    L.push('');
+  }
+  var memos = ks.filter(function(k){ return norm(state.records[k]).memo; }).slice(-8);
+  if (memos.length){
+    L.push('■ 最近のメモ');
+    memos.forEach(function(k){ L.push('・'+k.replace(/-/g,'/')+'　'+norm(state.records[k]).memo.replace(/\n/g,' ')); });
+    L.push('');
+  }
+  L.push('※ 本人によるセルフチェックの記録です。医学的診断ではありません。');
+  return L.join('\n');
+}
+
+/* ================= tabs ================= */
+function show(id){
+  ['v-log','v-chart','v-insight','v-photo','v-set'].forEach(function(v){ $(v).classList.toggle('on', v===id); });
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
+    t.setAttribute('aria-selected', t.dataset.v===id ? 'true':'false');
+  });
+  if (id==='v-chart'){ renderHeat(); renderChart(); renderAreaBars(); renderCal(); }
+  if (id==='v-insight') renderInsights();
+  if (id==='v-photo') renderPhotos();
+  if (id==='v-set'){ renderAdmin(); renderOpts(); }
+  window.scrollTo(0,0);
+}
+
+/* ================= wiring ================= */
+seed();
+buildAreaGrid();
+
+Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
+  t.addEventListener('click', function(){ show(t.dataset.v); });
+});
+$('dPrev').addEventListener('click', function(){ cur = addDays(cur,-1); renderLog(); });
+$('dNext').addEventListener('click', function(){ if (key(cur)!==key(today)) { cur = addDays(cur,1); renderLog(); } });
+$('mPrev').addEventListener('click', function(){ calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth()-1,1); renderCal(); });
+$('mNext').addEventListener('click', function(){ calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth()+1,1); renderCal(); });
+
+$('bulkNormal').addEventListener('click', function(){
+  edit(key(cur), function(r){ AREAS.forEach(function(a){ if (!r.a[a.id]) r.a[a.id]=3; }); });
+  renderLog();
+});
+$('bulkCopy').addEventListener('click', function(){
+  var d = addDays(cur,-1), found = null;
+  for (var i=0;i<14;i++){
+    var r = state.records[key(d)];
+    if (r && overall(norm(r))!=null) { found = norm(r); break; }
+    d = addDays(d,-1);
+  }
+  if (!found) { alert('コピーできる直近の記録がありません。'); return; }
+  edit(key(cur), function(r){ AREAS.forEach(function(a){ if (found.a[a.id]) r.a[a.id]=found.a[a.id]; }); });
+  renderLog();
+});
+$('bulkClear').addEventListener('click', function(){
+  edit(key(cur), function(r){ r.a = {}; });
+  renderLog();
+});
+
+$('sIn').addEventListener('change', function(){ var v=$('sIn').value; edit(key(cur), function(r){ r.sIn=v; }); renderLog(); });
+$('sOut').addEventListener('change', function(){ var v=$('sOut').value; edit(key(cur), function(r){ r.sOut=v; }); renderLog(); });
+$('memo').addEventListener('input', function(){ var v=$('memo').value; edit(key(cur), function(r){ r.memo=v; }); });
+
+$('hideIntro').addEventListener('click', function(){ state.ui.intro=false; persist(); $('introCard').hidden=true; });
+if (state.ui.intro === false) $('introCard').hidden = true;
+
+$('phAdd').addEventListener('click', function(){ $('phInput').click(); });
+$('phInput').addEventListener('change', function(){
+  var f = $('phInput').files && $('phInput').files[0];
+  $('phInput').value='';
+  if (!f) return;
+  var k = key(cur);
+  compress(f).then(function(b){
+    var id = 'p_'+k+'_'+Math.random().toString(36).slice(2,8);
+    return putPhoto(id,b).then(function(){
+      var old = rec(k).photo;
+      edit(k, function(r){ r.photo = id; });
+      if (old){ dropURL(old); delPhoto(old); }
+      renderLog();
+    });
+  }).catch(function(){ alert('写真を保存できませんでした。'); });
+});
+$('phDel').addEventListener('click', function(){
+  var k = key(cur), id = rec(k).photo;
+  if (!id) return;
+  edit(k, function(r){ r.photo=''; });
+  dropURL(id); delPhoto(id); renderLog();
+});
+
+$('doSummary').addEventListener('click', function(){ openText('受診のときに使えるまとめ', buildSummary()); });
+$('mdClose').addEventListener('click', closeModal);
+$('modal').addEventListener('click', function(e){ if (e.target===$('modal')) closeModal(); });
+$('mdCopy').addEventListener('click', function(){
+  var t = $('mdBody').textContent;
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(function(){ $('mdCopy').textContent='コピーしました ✓'; });
+  setTimeout(function(){ $('mdCopy').textContent='コピーする'; }, 1800);
+});
+
+$('doExport').addEventListener('click', function(){
+  var data = JSON.stringify({app:'hadaLog', version:2, exportedAt:key(today), items:state.items, records:state.records}, null, 1);
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([data], {type:'application/json'}));
+  a.download = 'hada-log-'+key(today)+'.json';
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+});
+$('doImport').addEventListener('click', function(){ $('impInput').click(); });
+$('impInput').addEventListener('change', function(){
+  var f = $('impInput').files && $('impInput').files[0];
+  $('impInput').value='';
+  if (!f) return;
+  var fr = new FileReader();
+  fr.onload = function(){
+    try{
+      var p = JSON.parse(fr.result);
+      if (!p || !p.records) throw new Error('bad');
+      if (p.items) Object.keys(p.items).forEach(function(id){
+        if (!state.items[id] && p.items[id] && p.items[id].name) state.items[id] = p.items[id];
+      });
+      var n = 0;
+      Object.keys(p.records).forEach(function(k){
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) return;
+        var r = norm(p.records[k]);
+        r.photo = state.records[k] ? norm(state.records[k]).photo : '';
+        if (!isEmpty(r)) { state.records[k] = r; n++; }
+      });
+      persist(); renderLog(); renderStreak(); renderAdmin();
+      alert(n+'日ぶんの記録を読み込みました。');
+    } catch(e){ alert('このファイルは読み込めませんでした。'); }
+  };
+  fr.readAsText(f);
+});
+$('doReset').addEventListener('click', function(){
+  if (!confirm('すべての記録と写真を削除します。取り消せません。よろしいですか？')) return;
+  if (!confirm('本当に削除しますか？')) return;
+  Object.keys(state.records).forEach(function(k){
+    var id = norm(state.records[k]).photo;
+    if (id){ dropURL(id); delPhoto(id); }
+  });
+  state.records = {}; picked = []; persist();
+  renderLog(); renderStreak(); show('v-log');
+  alert('削除しました。');
+});
+
+setTimeout(function(){
+  allPhotoIds().then(function(ids){
+    if (!ids) return;
+    var used = {};
+    Object.keys(state.records).forEach(function(k){
+      var p = norm(state.records[k]).photo; if (p) used[p]=1;
+    });
+    ids.forEach(function(id){ if (!used[id]) delPhoto(id); });
+  }).catch(function(){});
+}, 3000);
+
+renderLog();
+renderStreak();
+
+window.HADA = {state:state, findings:findings, analyze:analyze, recKeys:recKeys, buildSummary:buildSummary,
+               show:show, key:key, norm:norm, overall:overall, sleepH:sleepH, AREAS:AREAS};
+})();
+</script>
+</body>
+</html>
