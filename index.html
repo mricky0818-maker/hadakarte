@@ -99,9 +99,9 @@
   /* face map */
   .facewrap{display:flex;justify-content:center;margin:-4px 0 10px;}
   .face{width:172px;height:auto;}
-  .face .zone{cursor:pointer;transition:opacity .15s ease;stroke:var(--panel);stroke-width:1.4;}
+  .face .zone{cursor:pointer;transition:opacity .15s ease;}  .face .zone:not(.line){stroke:var(--panel);stroke-width:1.4;}  .face .zone.line{fill:none;stroke-width:13;stroke-linecap:round;}
   .face .zone:hover{opacity:.75;}
-  .face .zone.sel{stroke:var(--accent);stroke-width:2.6;}
+  .face .zone:not(.line).sel{stroke:var(--accent);stroke-width:2.6;}  .face .zone.line.sel{stroke-width:18;}
   .face .out{fill:none;stroke:var(--line);stroke-width:2;}
 
   /* area grid */
@@ -676,8 +676,8 @@ function avg(a){ var s=0; for (var i=0;i<a.length;i++) s+=a[i]; return s/a.lengt
 var FACE = '<svg class="face" viewBox="0 0 200 224" role="img" aria-label="顔の部位マップ">'
   + '<path class="base" d="M100,14 C138,14 160,42 160,86 C160,124 150,156 130,182 C118,198 109,208 100,208 '
   + 'C91,208 82,198 70,182 C50,156 40,124 40,86 C40,42 62,14 100,14 Z" fill="var(--panel-2)"/>'
-  + '<path class="zone" data-a="jaw" d="M43,104 C46,142 60,172 84,193" fill="none" stroke-linecap="round" stroke-width="13"/>'
-  + '<path class="zone" data-a="jaw2" d="M157,104 C154,142 140,172 116,193" fill="none" stroke-linecap="round" stroke-width="13"/>'
+  + '<path class="zone line" data-a="jaw" d="M43,104 C46,142 60,172 84,193" fill="none" stroke-linecap="round" stroke-width="13"/>'
+  + '<path class="zone line" data-a="jaw2" d="M157,104 C154,142 140,172 116,193" fill="none" stroke-linecap="round" stroke-width="13"/>'
   + '<ellipse class="zone" data-a="fore"   cx="100" cy="50"  rx="43" ry="25"/>'
   + '<ellipse class="zone" data-a="temple" cx="55"  cy="80"  rx="13" ry="16"/>'
   + '<ellipse class="zone" data-a="temple2" cx="145" cy="80"  rx="13" ry="16"/>'
@@ -706,8 +706,8 @@ function renderFace(r){
     var a = z.dataset.a.replace(/2$/,'');
     var v = r.a[a] || 0;
     var col = v ? SC[v] : 'var(--line)';
-    if (z.tagName.toLowerCase() === 'path') z.setAttribute('stroke', col);
-    else z.setAttribute('fill', col);
+    /* CSS の .zone{stroke} が presentation attribute より強いので、色は style で当てる */
+    if (z.classList.contains("line")) z.style.stroke = col; else z.style.fill = col;
     z.classList.toggle('sel', selArea === a);
   });
 }
