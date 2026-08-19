@@ -36,12 +36,23 @@
 "publisher":{"@type":"Organization","name":"肌カルテ","url":"https://hadakarte.com/","logo":{"@type":"ImageObject","url":"https://hadakarte.com/icon-512.png"}},
 "mainEntityOfPage":{"@type":"WebPage","@id":"https://hadakarte.com/ago/"}}
 </script>
+<script>
+  /* 計測から外すもの。母数が小さいうちは、自分の確認アクセスが混ざるだけで数字が読めなくなる。
+     ① 自動操作のブラウザ（検証用・JSを実行するクローラー）
+     ② #toggle-goatcounter を一度開いた端末（GoatCounter 公式の除外。localStorage に残る）
+     自分の端末を外すには https://hadakarte.com#toggle-goatcounter を開くこと（スマホ・PCそれぞれで）。*/
+  var noCount = false;
+  try {
+    noCount = navigator.webdriver === true || localStorage.getItem('skipgc') === 't';
+  } catch (e) {}
+  if (noCount) window.goatcounter = { no_onload: true, no_events: true };
+</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-8C3BWE4BTF"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-8C3BWE4BTF');
+  if (!noCount) gtag('config', 'G-8C3BWE4BTF');
 </script>
 <script data-goatcounter="https://stylecompass.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
