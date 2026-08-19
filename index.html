@@ -613,7 +613,7 @@ var selArea = '';
 
 function blank(){
   return {a:{}, sIn:'', sOut:'', food:[], drink:[], skinAM:[], skinPM:[], makeup:[],
-          washAM:'', washPM:'', cleanse:'', how:[], mast:0, period:'', memo:'', photo:''};
+          washAM:'', washPM:'', cleanse:'', how:[], mast:0, sex:0, period:'', memo:'', photo:''};
 }
 function norm(r){
   var b = blank();
@@ -622,12 +622,13 @@ function norm(r){
   ['sIn','sOut','washAM','washPM','cleanse','period','memo','photo'].forEach(function(k){ if (r[k]) b[k]=r[k]; });
   ['food','drink','skinAM','skinPM','makeup','how'].forEach(function(k){ if (Array.isArray(r[k])) b[k]=r[k]; });
   b.mast = r.mast ? 1 : 0;
+  b.sex  = r.sex  ? 1 : 0;
   return b;
 }
 function rec(k){ return state.records[k] ? state.records[k] : blank(); }
 function isEmpty(r){
   if (Object.keys(r.a).some(function(x){ return r.a[x]; })) return false;
-  if (r.sIn || r.sOut || r.washAM || r.washPM || r.cleanse || r.period || r.memo || r.photo || r.mast) return false;
+  if (r.sIn || r.sOut || r.washAM || r.washPM || r.cleanse || r.period || r.memo || r.photo || r.mast || r.sex) return false;
   return !['food','drink','skinAM','skinPM','makeup','how'].some(function(k){ return r[k].length; });
 }
 function edit(k, fn){
@@ -887,6 +888,7 @@ function renderLog(){
 
   var body = [];
   if (state.ui.mast) {
+    body.push(chip('性行為あり',   r.sex  === 1, function(){ edit(k, function(x){ x.sex  = x.sex  ? 0 : 1; }); }));
     body.push(chip('自慰行為あり', r.mast === 1, function(){ edit(k, function(x){ x.mast = x.mast ? 0 : 1; }); }));
   }
   fill($('bodyRow'), body);
@@ -1248,8 +1250,10 @@ function candidates(){
     test:function(r){ var h=sleepH(r); return h!=null && h<6; }});
   out.push({label:'睡眠が7時間以上', group:'睡眠', pair:'sleep', lags:LAG_BEFORE,
     test:function(r){ var h=sleepH(r); return h!=null && h>=7; }});
-  if (state.ui.mast) out.push({label:'自慰行為あり', group:'からだ', lags:LAG_FOOD,
-    test:function(r){ return r.mast===1; }});
+  if (state.ui.mast) {
+    out.push({label:'性行為あり',   group:'からだ', lags:LAG_FOOD, test:function(r){ return r.sex===1; }});
+    out.push({label:'自慰行為あり', group:'からだ', lags:LAG_FOOD, test:function(r){ return r.mast===1; }});
+  }
   if (state.ui.period) {
     out.push({label:'生理中', group:'からだ', lags:LAG_BEFORE, test:function(r){ return r.period==='on'||r.period==='start'; }});
   }
@@ -1349,6 +1353,7 @@ function analyze(){
     if (best) {
       best.label = M.cands[c].label; best.group = M.cands[c].group; best.pair = M.cands[c].pair || null;
       best.prod = M.cands[c].prod || 0; best.kindKey = M.cands[c].kindKey || null;
+      best.ci = c;                       // 交絡の判定で X の列を引くのに使う
       best.p = tp(best.t, best.df);
     }
     obs.push(best);
@@ -1360,18 +1365,45 @@ function analyze(){
     var step = Math.max(1, Math.ceil((hi-lo+1) / MAX_SHIFTS));
     for (var s=lo; s<=hi; s+=step) shifts.push(s);
   }
-  if (shifts.length < 8) return finish(ks, obs, [], []);
+  if (shifts.length < 8) return finish(ks, obs, [], [], null, null);
+
+  /* 巡回シフトだけだと帰無サンプルは日数ぶんしか作れない。
+     シフトは 4〜D-4 に限るので S=D-7 となり、pFam の最小値 1/(1+S) が
+     ALPHA を上回る間は「どれだけ強い関係でも絶対に何も出せない」。
+     実際 26日未満は構造的にゼロ件で、その直後の 26〜30日も
+     「全シフトに勝てば当たり」という粗い二値判定になっていた。
+     肌の並びを時間反転しても自己相関は保たれる＝同じ帰無分布に属するので、
+     反転版にも同じシフトをかけて帰無サンプルを倍にする。
+
+     較正の実測（合成データ・本物の因果ゼロ・偽陽性が1件でも出た試行の割合）:
+       日数   従来      反転あり
+        21    0%(不能)  2.3%   (300試行)
+        26    5.7%      2.7%   (300試行)
+        30    6.3%      3.7%   (300試行)
+        45    5.0%      5.5%   (200試行)
+        60    2.0%      3.0%   (200試行)
+        90    4.7%      4.2%   (150/120試行)
+     「急に荒れてゆっくり戻る」非対称な系列（＝時間反転が効かないはずの形）でも
+     30日 6.7%→5.3%、60日 4.5%→6.0% と悪化しなかった。
+     検出力（仕込んだ犯人を名指しできた割合）も 60日 71.7%→77.5% で下がっていない。 */
+  var Yrev = M.Y.map(function(y){
+    var z = new Float64Array(D);
+    for (var i=0;i<D;i++) z[i] = y[D-1-i];
+    return z;
+  });
+  var draws = [];
+  shifts.forEach(function(s){ draws.push({Y:M.Y, s:s}); draws.push({Y:Yrev, s:s}); });
 
   var nullMax = [], nullOwn = new Array(C);
   for (var c2=0;c2<C;c2++) nullOwn[c2] = 0;
 
-  shifts.forEach(function(s){
+  draws.forEach(function(dw){
     var mx = 0;
     for (var c=0;c<C;c++){
       if (!obs[c]) continue;
       var own = 0, lg = M.cands[c].lags || LAG_AFTER;
       for (var t=0;t<T;t++) for (var li=0;li<lg.length;li++){
-        var r = tstat(M.X[c], M.Y[t], D, lg[li], s);
+        var r = tstat(M.X[c], dw.Y[t], D, lg[li], dw.s);
         if (!r) continue;
         var a = Math.abs(r.t);
         if (a > own) own = a;
@@ -1381,7 +1413,7 @@ function analyze(){
     }
     nullMax.push(mx);
   });
-  var S = shifts.length;
+  var S = draws.length;
   nullMax.sort(function(a,b){ return a-b; });
 
   obs.forEach(function(f, c){
@@ -1391,9 +1423,9 @@ function analyze(){
     f.pFam = (1+ge) / (1+S);              // 全候補まとめての調整 p（これが本命の判定）
     f.pOwn = (1+nullOwn[c]) / (1+S);      // その候補だけを見たときの p（参考表示用）
   });
-  return finish(ks, obs, nullMax, shifts, ver);
+  return finish(ks, obs, nullMax, draws, ver, M);
 }
-function finish(ks, obs, nullMax, shifts, ver){
+function finish(ks, obs, nullMax, draws, ver, M){
   var list = obs.filter(Boolean).filter(function(f){ return Math.abs(f.diff) >= MIN_DIFF; });
 
   // 「睡眠6時間未満」と「7時間以上」のような裏返しの組は強いほうだけ残す
@@ -1423,14 +1455,34 @@ function finish(ks, obs, nullMax, shifts, ver){
     }
   });
 
+  /* いつも一緒に記録されている候補どうしは、どちらが効いているのか記録からは分けられない
+     （外食した日はお酒も飲んでいる、など）。黙って両方並べると「2つ見つかった」と読めて
+     しまうので、重なりが大きい相手を名指しして添える。 */
+  if (M) hits.forEach(function(f){
+    if (f.ci == null || f.tangle) return;
+    var x = M.X[f.ci];
+    for (var i=0;i<hits.length;i++){
+      var g = hits[i];
+      if (g === f || g.ci == null || g.kindKey && g.kindKey === f.kindKey) continue;
+      var y = M.X[g.ci], both = 0, either = 0;
+      for (var j=0;j<x.length;j++){
+        if (!x[j] || !y[j]) continue;              // どちらかがその日は記録なし
+        var a = x[j]===1, b = y[j]===1;
+        if (a || b) either++;
+        if (a && b) both++;
+      }
+      if (either >= MIN_A && both/either >= 0.8) { f.tangle = g.label; g.tangle = f.label; break; }
+    }
+  });
+
   var hit = {};
   hits.forEach(function(f){ hit[f.label] = 1; });
   var leads = list.filter(function(f){ return !hit[f.label] && f.pOwn != null && f.pOwn <= LEAD_P; })
                   .sort(function(a,b){ return a.pOwn - b.pOwn; }).slice(0,5);
 
   var val = {ready:true, days:ks.length, hits:hits, leads:leads,
-             tested:list.length, shifts:shifts.length,
-             resolution: shifts.length ? 1/(1+shifts.length) : null};
+             tested:list.length, shifts:draws.length,
+             resolution: draws.length ? 1/(1+draws.length) : null};
   if (ver) { anCache.ver = ver; anCache.val = val; }
   return val;
 }
@@ -1508,6 +1560,11 @@ function paintInsights(){
       if (f.swap) {
         w.appendChild(el('p','d','↩︎ 同じ種類の「'+f.swap+'」と入れ替わりで使っているようです。'
           + 'こちらが良いというより、そちらが合っていないだけかもしれません。'));
+      }
+      if (f.tangle) {
+        w.appendChild(el('p','d','🔗 「'+f.tangle+'」とほとんど同じ日に記録されています。'
+          + 'いまの記録では、どちらが効いているのかを分けられません。'
+          + '片方だけの日をつくると切り分けられます。'));
       }
       card.appendChild(w);
     });
@@ -1629,8 +1686,12 @@ function renderAdmin(){
 }
 function renderOpts(){
   fill($('optRow'), [
-    chip('自慰行為の記録', state.ui.mast, function(){ state.ui.mast = !state.ui.mast; persist(); renderOpts(); }),
-    chip('生理の記録',     state.ui.period, function(){ state.ui.period = !state.ui.period; persist(); renderOpts(); })
+    /* ui.mast は「からだ（性行為・自慰行為）」の記録を出すかどうか。
+       キー名が mast なのは、自慰行為だけだった頃の保存データと互換を保つため。 */
+    /* renderLog() まで呼ぶこと。show('v-log') は記録画面を描き直さないので、
+       これが無いと設定を切り替えても記録画面にチップが出てこない。 */
+    chip('性行為・自慰行為の記録', state.ui.mast, function(){ state.ui.mast = !state.ui.mast; persist(); renderOpts(); renderLog(); }),
+    chip('生理の記録',     state.ui.period, function(){ state.ui.period = !state.ui.period; persist(); renderOpts(); renderLog(); })
   ]);
 }
 
