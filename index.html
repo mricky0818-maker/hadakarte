@@ -48,6 +48,8 @@
     --line:#CDE9E2; --accent:#12A594; --accent-ink:#0A7267; --accent-soft:#D6F3ED;
     /* カードの縁だけ別トークン。暗いテーマでは影が効かないので、ここで面を切る */
     --card-line:#CDE9E2;
+    /* --accent の上に白文字だと 3.07:1 しか出ない。ボタンは専用の組で持つ */
+    --btn-bg:#0C7B6F; --btn-ink:#FFFFFF;
     --plum:#7C5CD6; --plum-soft:#EDE6FF; --warn:#B84A24; --warn-soft:#FBE6DC; --good:#2F9C63;
     --s1:#D9563A; --s2:#E79355; --s3:#D9C263; --s4:#6FBF8B; --s5:#2C9760;
     --sans:"Hiragino Maru Gothic ProN","Hiragino Maru Gothic Pro",YuGothic,"Yu Gothic","M PLUS Rounded 1c",Meiryo,system-ui,sans-serif;
@@ -61,6 +63,8 @@
   @media (prefers-color-scheme:dark){:root{
     --ground:#0E1A18; --panel:#182B27; --panel-2:#20362F; --ink:#E6F4F0; --muted:#8DAFA7;
     --line:#2F4E46; --card-line:#365A51; --accent:#2ED3BE; --accent-ink:#63E5D2; --accent-soft:#1B3B36;
+    /* 暗いテーマの --accent は明るいので、文字のほうを濃くする（白だと 1.88:1） */
+    --btn-bg:#2ED3BE; --btn-ink:#06231F;
     --plum:#A98BF0; --plum-soft:#2A2145; --warn:#FF9068; --warn-soft:#3A241C; --good:#5CC98D;
     --s1:#E0674A; --s2:#EDA467; --s3:#DDCB77; --s4:#79C795; --s5:#48B478;
     --shadow:0 22px 50px -38px rgba(0,0,0,.85);
@@ -166,7 +170,7 @@
   textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px;}
 
   .btn{appearance:none;border:0;cursor:pointer;font-family:var(--sans);font-weight:800;font-size:var(--fs-5);
-    background:var(--accent);color:#fff;border-radius:var(--r-f);padding:12px 18px;width:100%;
+    background:var(--btn-bg);color:var(--btn-ink);border-radius:var(--r-f);padding:12px 18px;width:100%;
     box-shadow:0 10px 22px -14px rgba(18,165,148,.8);transition:transform .12s ease,filter .12s ease;}
   .btn:hover{transform:translateY(-2px);filter:brightness(1.05);}
   .btn.ghost{background:var(--panel);color:var(--accent-ink);border:1.5px solid var(--line);box-shadow:none;font-weight:700;}
@@ -476,6 +480,7 @@
       <h2>読みもの</h2>
       <p class="sub" style="margin:0 0 11px">その部位で起きやすいこと、よく言われる原因がどこまで確かなのかを整理しています。</p>
       <div class="chips">
+        <a class="chip link" href="nannichi/">何日記録すれば分かるのか</a>
         <a class="chip link" href="basho/">場所で原因は分かるのか</a>
         <a class="chip link" href="seiri/">生理前の肌荒れ</a>
       </div>
