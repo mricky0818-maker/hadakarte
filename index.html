@@ -35,10 +35,14 @@
   /* 計測から外すもの。母数が小さいうちは、自分の確認アクセスが混ざるだけで数字が読めなくなる。
      ① 自動操作のブラウザ（検証用・JSを実行するクローラー）
      ② #toggle-goatcounter を一度開いた端末（GoatCounter 公式の除外。localStorage に残る）
+     ③ 本番ドメイン以外（localhost / 127.0.0.1 / file:// など、手元の確認用）
+        ③を入れる前は GA4 の表示回数の約26%が localhost だった（2026-08-20 実測）。
      自分の端末を外すには https://hadakarte.com#toggle-goatcounter を開くこと（スマホ・PCそれぞれで）。*/
   var noCount = false;
   try {
-    noCount = navigator.webdriver === true || localStorage.getItem('skipgc') === 't';
+    noCount = (location.hostname !== 'hadakarte.com')
+           || navigator.webdriver === true
+           || localStorage.getItem('skipgc') === 't';
   } catch (e) {}
   if (noCount) window.goatcounter = { no_onload: true, no_events: true };
 </script>
