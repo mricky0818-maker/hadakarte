@@ -117,6 +117,7 @@
      中身のチップより明確に大きくして、どこからどこまでが1つの項目なのかを一目で分かるようにする。 */
   .label .opt{font-weight:600;font-size:var(--fs-2);opacity:.75;color:var(--muted);}
   .label.mt{margin-top:16px;}
+  .lede.mt{margin-top:12px;}
 
   .view{display:none;} .view.on{display:block;animation:fade .26s ease both;}
   @keyframes fade{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
@@ -306,8 +307,12 @@
   <!-- ============ 記録 ============ -->
   <section class="view on" id="v-log" role="tabpanel">
     <div class="card" id="introCard">
-      <h1>部位ごとに記録して、原因を突きとめる。</h1>
-      <p class="lede">7つの部位を5段階で記録し、食べたもの・睡眠・スキンケア・洗顔まで残していくと、<b>どれが、どの部位に効いているか</b>を自動で計算します。記録も写真もこの端末の中だけに保存され、外には出ません。</p>
+      <h1>いつも同じ場所が荒れるのは、なぜなのか。</h1>
+      <p class="lede">「おでこは胃腸、あごは子宮」——顔の絵に内臓を書き込んだ図に、確かな根拠はありません。<b>ただし、場所そのものに意味がないわけではない。</b>何があなたのどの部位と一緒に動いているかは、記録すれば見えてきます。7つの部位を毎朝5段階で押すだけ。記録も写真もこの端末の中だけに保存され、外には出ません。</p>
+      <div class="chips" style="margin-bottom:14px">
+        <a class="chip link" href="basho/">場所で原因は分かるのか</a>
+        <a class="chip link" href="nannichi/">何日記録すれば分かるのか</a>
+      </div>
       <div class="privacy" style="margin-bottom:14px">
         ⏰ <b>使いかた</b>：肌の調子は<b>朝、顔を洗う前</b>に。その日の食事やスキンケアは<b>夜にまとめて</b>足してください。<br>
         毎日同じタイミングで見ることで、日ごとの比較ができるようになります。
@@ -331,6 +336,7 @@
         <button class="chip" id="bulkCopy" type="button">前回と同じ</button>
         <button class="chip" id="bulkClear" type="button">クリア</button>
       </div>
+      <div class="privacy" id="todayNote" style="margin-top:12px" hidden></div>
     </div>
 
     <div class="card">
@@ -917,6 +923,7 @@ function renderLog(){
 
   renderFace(r);
   paintAreaGrid(r);
+  renderTodayNote(r);
 
   if (document.activeElement !== $('sIn'))  $('sIn').value  = r.sIn  || '';
   if (document.activeElement !== $('sOut')) $('sOut').value = r.sOut || '';
@@ -1560,6 +1567,73 @@ function cycleInfo(){
   };
 }
 
+/* ============ 21日を待たずに返すもの ============
+   ここで出しているのは押した数字をそのまま読んだだけで、原因の推定は一切していない。
+   因果の判定は analyze() だけが行う（MIN_DAYS=21 / Westfall-Young maxT）。
+   ⚠️ 「初日から何か出したい」という理由でこちらに推定を寄せないこと。多重検定の較正が壊れる。 */
+var AREA_DOC = {fore:'odeko/', temple:'komekami/', nose:'hana/', cheek:'hoho/',
+                mouth:'kuchimoto/', chin:'ago/', jaw:'faceline/'};
+
+/* その日の記録のうち、いちばん低い部位（同点はすべて返す） */
+function lowestToday(r){
+  var lo = 9, out = [];
+  AREAS.forEach(function(a){
+    var v = r.a[a.id];
+    if (!v) return;
+    if (v < lo) { lo = v; out = [a]; }
+    else if (v === lo) { out.push(a); }
+  });
+  return out.length ? {areas:out, v:lo} : null;
+}
+
+/* 記録した全日の平均で、いちばん低い部位 */
+function lowestMean(){
+  var ks = recKeys();
+  if (!ks.length) return null;
+  var lo = 9, out = [];
+  AREAS.forEach(function(a){
+    var v = [];
+    ks.forEach(function(k){ var x = norm(state.records[k]).a[a.id]; if (x) v.push(x); });
+    if (!v.length) return;
+    var m = v.reduce(function(p,q){ return p+q; },0) / v.length;
+    if (m < lo - 0.001) { lo = m; out = [a]; }
+    else if (Math.abs(m - lo) <= 0.001) { out.push(a); }
+  });
+  return out.length ? {areas:out, v:lo} : null;
+}
+
+function areaLinks(areas){
+  var w = el('div','chips');
+  areas.forEach(function(a){
+    var x = el('a','chip link', a.l + 'で起きやすいこと');
+    x.href = AREA_DOC[a.id] || 'basho/';
+    w.appendChild(x);
+  });
+  return w;
+}
+
+function docChip(label, href){
+  var w = el('div','chips'), x = el('a','chip link', label);
+  x.href = href; w.appendChild(x); return w;
+}
+
+/* 記録タブ：押したその場で返す一行 */
+function renderTodayNote(r){
+  var box = $('todayNote');
+  if (!box) return;
+  box.innerHTML = '';
+  var lo = lowestToday(r);
+  if (!lo) { box.hidden = true; return; }
+  box.hidden = false;
+  var nm = lo.areas.map(function(a){ return a.l; }).join('・');
+  var p = el('p',null,'この日いちばん気になっているのは ');
+  p.appendChild(el('b',null,nm));
+  p.appendChild(document.createTextNode(' です。'));
+  box.appendChild(p);
+  box.appendChild(areaLinks(lo.areas));
+  box.appendChild(el('p','sub','押した内容をそのまま読んだだけで、原因の判定ではありません。'));
+}
+
 function renderInsights(){
   var ks = recKeys();
   // 1年ぶんたまると計算に1秒近くかかるので、先に画面を描いてから計算する
@@ -1581,13 +1655,35 @@ function paintInsights(){
 
   if (ks.length < MIN_DAYS) {
     var c = el('div','card');
-    c.appendChild(el('h2',null,'あと'+(MIN_DAYS-ks.length)+'日で分析がはじまります'));
-    c.appendChild(el('p','lede',MIN_DAYS+'日ぶんの記録がたまると、食べたもの・睡眠・スキンケア・洗顔のうち何が、どの部位に効いているかを計算して表示します。'));
+    c.appendChild(el('h2',null,'いま見えていること'));
+    var lm = lowestMean();
+    if (lm) {
+      var nm = lm.areas.map(function(a){ return a.l; }).join('・');
+      c.appendChild(el('p','lede','記録した '+ks.length+'日 の平均で、いちばん低いのは【'+nm+'】です。'));
+      c.appendChild(areaLinks(lm.areas));
+    } else {
+      c.appendChild(el('p','lede','まだ部位の記録がありません。記録タブで7か所を押すところから始めてください。'));
+    }
+    c.appendChild(el('p','sub','ここに出しているのは、押した数字を並べただけのものです。何がどの部位に効いているかの計算は、まだ始まっていません。'));
+    body.appendChild(c);
+
+    var c2 = el('div','card');
+    c2.appendChild(el('h2',null,'あと'+(MIN_DAYS-ks.length)+'日で分析がはじまります'));
     var pr = el('div','progress'), i2 = el('i');
     i2.style.width = Math.round(ks.length/MIN_DAYS*100)+'%'; pr.appendChild(i2);
-    c.appendChild(pr);
-    c.appendChild(el('p','sub','記録ずみ '+ks.length+' / '+MIN_DAYS+' 日'));
-    body.appendChild(c);
+    c2.appendChild(pr);
+    c2.appendChild(el('p','sub','記録ずみ '+ks.length+' / '+MIN_DAYS+' 日'));
+    c2.appendChild(el('p','lede mt','日数が足りないうちに計算すると、ただの偶然を「原因」として拾ってしまいます。'
+      +MIN_DAYS+'日は、それを避けられる最小の日数です。'));
+    c2.appendChild(docChip('何日記録すれば分かるのか','nannichi/'));
+    body.appendChild(c2);
+
+    var c3 = el('div','card');
+    c3.appendChild(el('h2',null,'場所から原因は分かるのか'));
+    c3.appendChild(el('p','lede','「おでこは胃腸、あごは子宮」のような図は、いま出回っているものが現代の皮膚科学で検証されたものではありません。'
+      +'ただし場所そのものに意味がないわけではなく、皮脂腺の分布・何が触れているか・どこが乾きやすいかで、部位ごとの傾向はかなり説明がつきます。'));
+    c3.appendChild(docChip('場所で原因は分かるのか','basho/'));
+    body.appendChild(c3);
     return;
   }
 
