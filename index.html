@@ -1325,6 +1325,49 @@ var MIN_A = 8;       // 少なくともこの日数はあてはまっている�
 var MIN_B = 12;      // 比較相手の日数
 var MIN_DIFF = 0.5;  // 5段階で半段以上の差がないと実用上の意味が薄い
 var ALPHA = 0.05;    // 「1つでも誤って断定する」確率の上限（全候補まとめて）
+/* --- 判定の基準（2026-08-19 に見直し。合成データ150試行×各条件で実測） ---
+
+   短い記録では、候補を50個ほど一斉に調べる関係で「1つでも間違えたら負け」の
+   基準が厳しすぎ、本物まで落としていた。そこで60日までは「出したうち5%までは
+   外れてよい」という基準に変える。誤報率は変えずに検出力だけ上がる:
+
+     日数   従来 検出力/誤報   新 検出力/誤報
+      30      5.3% / 4.0%      8.7% / 3.3%
+      60     11.3% / 6.0%     25.0% / 6.0%
+
+   ただし記録が伸びると、本物が通るのに引きずられて外れも一緒に通り始める。
+   90日では狙い5%に対し実測16.8%まで悪化したので、60日を超えたら従来の
+   最厳判定に戻す。90日時点の従来は 41.5%/4.1% と十分強いので損はしない。
+
+   ⚠️ q を 8% 以上にしないこと。60日の誤報率が 13.3%（8%）、15.3%（10%）と暴れる。 */
+var FDR_Q = 0.05;
+var FDR_MAX_DAYS = 60;   // これを超えたら ALPHA の最厳判定に戻す
+
+/* 偽データの作り方。ブロックに切って並べ替え直すことで何本でも作れる。
+   従来の巡回シフトは日数ぶん（S = 2×(D-7)、60日で106本）しか作れず、
+   p 値の下限 1/(1+S) が判定の閾値より大きくなって、上の基準が
+   「どんなに強い関係でも1件も出せない」状態になる。
+   ⚠️ 必要な本数は「候補数 ÷ q」で決まる。候補50個・q=5% なら1000本以上。
+      足りないと静かにゼロ件になるので、減らすときは必ず確認すること。 */
+var N_SUR   = 1500;   // 偽データの本数
+var BLOCK_L = 7;      // ブロックの長さ（日）。肌のゆっくりした変動を残すため長めに取る
+
+/* 同じ記録なら毎回同じ結果を返す必要があるので、乱数は記録から作った種で回す */
+function mulberry(a){
+  return function(){ a|=0; a=a+0x6D2B79F5|0;
+    var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t;
+    return ((t^t>>>14)>>>0)/4294967296; };
+}
+/* ブロックの取り出し位置。7部位すべてに同じ並びを使うことで、部位どうしの
+   相関を壊さない（巡回シフトが持っていた性質をここでも保つ）。 */
+function blockIndex(D, L, rnd){
+  var idx = new Int32Array(D), i = 0;
+  while (i < D) {
+    var st = Math.floor(rnd() * D);
+    for (var j=0; j<L && i<D; j++, i++) idx[i] = (st + j) % D;
+  }
+  return idx;
+}
                      // 0.10 だと実測で 90日 15% まで出た。原因を名指しする以上、
                      // 見逃しより誤検出を嫌って厳しめに寄せている。
 var LEAD_P = 0.05;   // 候補どまりとして参考表示する水準
@@ -1416,51 +1459,69 @@ function analyze(){
     obs.push(best);
   }
 
-  // 「関係がない世界」を巡回シフトで作る。lag と紛れないよう前後3日ぶんは使わない。
-  var shifts = [], lo = 4, hi = D - 4;
-  if (hi > lo) {
-    var step = Math.max(1, Math.ceil((hi-lo+1) / MAX_SHIFTS));
-    for (var s=lo; s<=hi; s+=step) shifts.push(s);
-  }
-  if (shifts.length < 8) return finish(ks, obs, [], [], null, null);
+  /* 「関係がない世界」の作り方は2通りあり、日数で使い分ける。
 
-  /* 巡回シフトだけだと帰無サンプルは日数ぶんしか作れない。
-     シフトは 4〜D-4 に限るので S=D-7 となり、pFam の最小値 1/(1+S) が
-     ALPHA を上回る間は「どれだけ強い関係でも絶対に何も出せない」。
-     実際 26日未満は構造的にゼロ件で、その直後の 26〜30日も
-     「全シフトに勝てば当たり」という粗い二値判定になっていた。
-     肌の並びを時間反転しても自己相関は保たれる＝同じ帰無分布に属するので、
-     反転版にも同じシフトをかけて帰無サンプルを倍にする。
+     ■ 60日まで … ブロックに切って並べ替え直す。何本でも作れる。
+       巡回シフトだけだと日数ぶん（S = 2×(D-7)、60日で106本）しか作れず、
+       p 値が 1/(1+S) より小さくなれない。すると「出したうち5%まで」の
+       細かい基準は計算そのものが成立しない（実際、静かにゼロ件になる）。
+       必要な本数は「候補数 ÷ q」で決まるので、そこから逆算して作る。
 
-     較正の実測（合成データ・本物の因果ゼロ・偽陽性が1件でも出た試行の割合）:
-       日数   従来      反転あり
-        21    0%(不能)  2.3%   (300試行)
-        26    5.7%      2.7%   (300試行)
-        30    6.3%      3.7%   (300試行)
-        45    5.0%      5.5%   (200試行)
-        60    2.0%      3.0%   (200試行)
-        90    4.7%      4.2%   (150/120試行)
-     「急に荒れてゆっくり戻る」非対称な系列（＝時間反転が効かないはずの形）でも
-     30日 6.7%→5.3%、60日 4.5%→6.0% と悪化しなかった。
-     検出力（仕込んだ犯人を名指しできた割合）も 60日 71.7%→77.5% で下がっていない。 */
-  var Yrev = M.Y.map(function(y){
-    var z = new Float64Array(D);
-    for (var i=0;i<D;i++) z[i] = y[D-1-i];
-    return z;
-  });
+     ■ 60日超え … 巡回シフト＋時間反転（従来どおり）。
+       この範囲では厳しいほうの基準を使うので細かい p 値が要らず、
+       ブロック方式にすると 365日で8秒かかって実用にならない。 */
+  var useFdr = (FDR_Q != null) && (ks.length <= FDR_MAX_DAYS);
   var draws = [];
-  shifts.forEach(function(s){ draws.push({Y:M.Y, s:s}); draws.push({Y:Yrev, s:s}); });
+  if (useFdr) {
+    /* 判定に必要な本数は「実際に判定できる候補の数 ÷ q」。少し余裕を持たせる。
+       C（候補の総数）ではなく、日数が足りて実際に検定できたものだけで数える。 */
+    var mEst = 0;
+    for (var mi=0; mi<C; mi++) if (obs[mi] && Math.abs(obs[mi].diff) >= MIN_DIFF) mEst++;
+    var need = Math.min(2000, Math.max(700, Math.ceil(mEst / FDR_Q * 1.25)));
+    for (var q=0;q<need;q++) draws.push(null);   // 中身は回しながら作る（メモリ節約）
+  } else {
+    var shifts = [], lo = 4, hi = D - 4;
+    if (hi > lo) {
+      var step = Math.max(1, Math.ceil((hi-lo+1) / MAX_SHIFTS));
+      for (var s=lo; s<=hi; s+=step) shifts.push(s);
+    }
+    if (shifts.length < 8) return finish(ks, obs, [], [], null, null);
+    /* 肌の並びを時間反転しても自己相関は保たれる＝同じ帰無分布に属するので、
+       反転版にも同じシフトをかけて本数を倍にする。 */
+    var Yrev = M.Y.map(function(y){
+      var z = new Float64Array(D);
+      for (var i=0;i<D;i++) z[i] = y[D-1-i];
+      return z;
+    });
+    shifts.forEach(function(sv){ draws.push({Y:M.Y, s:sv}); draws.push({Y:Yrev, s:sv}); });
+  }
+
+  var seed = 0;
+  for (var si=0; si<ver.length; si++) seed = (Math.imul(seed,31) + ver.charCodeAt(si)) | 0;
+  var rnd = mulberry(seed || 1);
+  var buf = [];
+  for (var bt=0; bt<T; bt++) buf.push(new Float64Array(D));
 
   var nullMax = [], nullOwn = new Array(C);
   for (var c2=0;c2<C;c2++) nullOwn[c2] = 0;
 
   draws.forEach(function(dw){
+    var Yd, sh;
+    if (dw) { Yd = dw.Y; sh = dw.s; }          // 巡回シフト：同じ系列をずらす
+    else {                                      // ブロック：毎回組み立て直す
+      var idx = blockIndex(D, BLOCK_L, rnd);
+      for (var t2=0; t2<T; t2++){
+        var b = buf[t2], yt = M.Y[t2];
+        for (var i2=0;i2<D;i2++) b[i2] = yt[idx[i2]];
+      }
+      Yd = buf; sh = 0;
+    }
     var mx = 0;
     for (var c=0;c<C;c++){
       if (!obs[c]) continue;
       var own = 0, lg = M.cands[c].lags || LAG_AFTER;
       for (var t=0;t<T;t++) for (var li=0;li<lg.length;li++){
-        var r = tstat(M.X[c], dw.Y[t], D, lg[li], dw.s);
+        var r = tstat(M.X[c], Yd[t], D, lg[li], sh);
         if (!r) continue;
         var a = Math.abs(r.t);
         if (a > own) own = a;
@@ -1475,10 +1536,10 @@ function analyze(){
 
   obs.forEach(function(f, c){
     if (!f) return;
+    f.pOwn = (1+nullOwn[c]) / (1+S);      // その候補だけを見たときの p
     var ge = 0;
     for (var i=0;i<S;i++) if (nullMax[i] >= Math.abs(f.t)) ge++;
     f.pFam = (1+ge) / (1+S);              // 全候補まとめての調整 p（これが本命の判定）
-    f.pOwn = (1+nullOwn[c]) / (1+S);      // その候補だけを見たときの p（参考表示用）
   });
   return finish(ks, obs, nullMax, draws, ver, M);
 }
@@ -1496,8 +1557,22 @@ function finish(ks, obs, nullMax, draws, ver, M){
     return true;
   }).filter(function(f){ return !f.drop; });
 
-  var hits = list.filter(function(f){ return f.pFam != null && f.pFam <= ALPHA; })
-                 .sort(function(a,b){ return Math.abs(b.t)-Math.abs(a.t); }).slice(0,8);
+  /* 判定の基準は日数で切り替える（上の FDR_Q のコメントに実測値あり）。
+     60日まで … 「出したうち5%までは外れてよい」。短い記録で本物を拾うため。
+     60日超え … 従来の「1つでも間違えたら負け」。記録が伸びると前者は外れが
+                混ざりはじめるうえ、後者だけで十分な強さが出るようになる。 */
+  var strict = (FDR_Q == null) || (ks.length > FDR_MAX_DAYS) || !nullMax || !nullMax.length;
+  var hits;
+  if (strict) {
+    hits = list.filter(function(f){ return f.pFam != null && f.pFam <= ALPHA; });
+  } else {
+    var srt = list.filter(function(f){ return f.pOwn != null; })
+                  .slice().sort(function(a,b){ return a.pOwn - b.pOwn; });
+    var m = srt.length, k = 0;
+    for (var bi=0; bi<m; bi++) if (srt[bi].pOwn <= ((bi+1)/m) * FDR_Q) k = bi+1;
+    hits = srt.slice(0, k);
+  }
+  hits = hits.sort(function(a,b){ return Math.abs(b.t)-Math.abs(a.t); }).slice(0,8);
 
   /* 同じ種類の製品は交互に使うので互いに排他になりやすい。
      片方が悪いと、もう片方が「良い」として裏返しに出てしまうため、その旨を添える。 */
@@ -1537,7 +1612,11 @@ function finish(ks, obs, nullMax, draws, ver, M){
   var leads = list.filter(function(f){ return !hit[f.label] && f.pOwn != null && f.pOwn <= LEAD_P; })
                   .sort(function(a,b){ return a.pOwn - b.pOwn; }).slice(0,5);
 
-  var val = {ready:true, days:ks.length, hits:hits, leads:leads,
+  /* 実験用。1回の分析から、あとで任意の許容ハズレ率を計算できるように
+     候補ごとの p 値を持ち出す。表示には使わない。 */
+  var all = list.map(function(f){ return {label:f.label, target:f.target, pOwn:f.pOwn, pFam:f.pFam}; });
+
+  var val = {ready:true, days:ks.length, hits:hits, leads:leads, all:all, strict:strict,
              tested:list.length, shifts:draws.length,
              resolution: draws.length ? 1/(1+draws.length) : null};
   if (ver) { anCache.ver = ver; anCache.val = val; }
@@ -1642,7 +1721,8 @@ function renderInsights(){
     b0.innerHTML = '';
     var wait = el('div','card');
     wait.appendChild(el('h2',null,'計算しています…'));
-    wait.appendChild(el('p','sub','記録の並びを何通りもずらして、偶然どこまで差が出るかを確かめています。'));
+    wait.appendChild(el('p','sub','記録を並べ替えた「関係がない場合」のデータを千通り以上つくって、'
+      + '偶然どこまで差が出るかを確かめています。'));
     b0.appendChild(wait);
     setTimeout(paintInsights, 30);
     return;
@@ -1700,7 +1780,8 @@ function paintInsights(){
       var h = el('p','h');
       h.textContent = (bad?'⚠️ ':'✨ ')+'「'+f.label+'」の'+lagLabel(f.lag)
         +'は【'+f.target+'】が平均 '+(f.diff>0?'+':'')+f.diff.toFixed(1)+'（'+(bad?'落ちる':'良い')+'）';
-      h.appendChild(el('span','tag', f.pFam <= 0.03 ? 'かなり確か' : 'はっきりした傾向'));
+      /* 「かなり確か」は言い過ぎ。60日までの基準では、出したうち5%ほどは外れている。 */
+      h.appendChild(el('span','tag', f.pOwn <= 0.005 ? '強い候補' : '候補'));
       w.appendChild(h);
       w.appendChild(el('p','d','あてはまった '+f.nA+'日 と、それ以外の '+f.nB+'日 の比較（'+f.group+'）'));
       if (f.swap) {
@@ -1714,8 +1795,12 @@ function paintInsights(){
       }
       card.appendChild(w);
     });
-    card.appendChild(el('p','sub','※ 記録の並びを'+res.shifts+'通りにずらして「関係がない場合に偶然どこまで差が出るか」を実際に計算し、'
-      + 'それを超えたものだけを出しています。'));
+    card.appendChild(el('p','sub','※ 記録を並べ替えた「関係がない場合」のデータを'+res.shifts+'通りつくり、'
+      + '偶然どこまで差が出るかを実際に計算したうえで、それを超えたものだけを出しています。'
+      + (res.strict
+          ? '記録が'+FDR_MAX_DAYS+'日を超えたので、いまはより厳しい基準で判定しています。'
+            + '以前ここに出ていたものが、下の「まだ確定していない候補」に移ることがあります。'
+          : 'ここに出たもののうち、20個に1個ほどは外れている見込みです。')));
   }
   card.appendChild(el('p','sub','※ あなた自身の記録にもとづく統計的な目安です。いつも一緒に起きている別の原因が'
     + '混ざっている可能性があります（例：外食した日はお酒も飲んでいる）。医学的な診断ではありません。'));
@@ -2085,7 +2170,10 @@ renderLog();
 renderStreak();
 
 window.HADA = {state:state, findings:findings, analyze:analyze, recKeys:recKeys, buildSummary:buildSummary,
-               show:show, key:key, norm:norm, overall:overall, sleepH:sleepH, AREAS:AREAS};
+               show:show, key:key, norm:norm, overall:overall, sleepH:sleepH, AREAS:AREAS,
+               /* 較正の測定用。判定基準を差し替えて合成データを流すときに使う。
+                  IIFE の中の変数は外から代入できないので関数経由。通常動作では触らないこと。 */
+               setFdr:function(q,n){ FDR_Q = q; if (n) N_SUR = n; anCache.ver = ''; }};
 })();
 </script>
 </body>
