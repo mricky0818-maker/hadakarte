@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 
+# 運営用の作業メモ。読まれて困る内容ではないが、記事ではないので検索には載せない
+Disallow: /HANDOFF.md
+
 Sitemap: https://hadakarte.com/sitemap.xml
