@@ -639,6 +639,34 @@ function seed(){
 }
 function persist(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} }
 
+/* 「記録が保存された」という操作が起きた事実だけを数える。
+   来た人のうち何割が記録を始めるのか、そして初日だけなのかが、いま完全に見えていない。
+
+   🔴 送ってよいのはここまで。増やさないこと：
+     ・入力された内容（肌の状態・食事・睡眠・写真・メモ）は1バイトも送らない
+     ・何日目の記録かも送らない。入力内容から導かれる情報なので線を越える
+     ・部位・数値・項目名も送らない
+   ポリシー第4条に、この集計を行っている旨を明記してある。
+
+   1日1回に絞る理由：チップを押すたびに保存が走るので、そのまま数えると
+   1人が1日で数十件になり「何割が記録を始めたか」が測れなくなる。
+   1日1回なら「その日に記録した端末の数」になり、割合も推移も両方読める。 */
+function countSave(){
+  if (typeof noCount !== 'undefined' && noCount) return;   // 自分たちの端末は数えない
+  try {
+    var d = key(new Date());
+    if (localStorage.getItem('hadaLog.ev') === d) return;
+    localStorage.setItem('hadaLog.ev', d);
+  } catch(e) { return; }
+  /* count.js は非同期で読み込まれる。間に合っていなければ数えないだけにする
+     （取りこぼしても、集計の目的からすると許容範囲） */
+  try {
+    if (window.goatcounter && window.goatcounter.count) {
+      window.goatcounter.count({path:'save', title:'記録を保存', event:true});
+    }
+  } catch(e){}
+}
+
 var saveTimer = null;
 function saved(){
   persist();
@@ -688,6 +716,7 @@ function edit(k, fn){
   if (!state.records[k]) state.records[k] = blank();
   fn(state.records[k]);
   if (isEmpty(state.records[k])) delete state.records[k];
+  else countSave();            // 中身が残ったときだけ。全部外して消えた場合は数えない
   saved();
 }
 function toggleIn(arr, id){ var i = arr.indexOf(id); if (i>=0) arr.splice(i,1); else arr.push(id); }
