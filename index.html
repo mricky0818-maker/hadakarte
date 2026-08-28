@@ -339,6 +339,7 @@
       <div class="privacy" id="todayNote" style="margin-top:12px" hidden></div>
     </div>
 
+
     <div class="card">
       <p class="label">睡眠 <span class="opt">（前の晩）</span></p>
       <div class="times">
@@ -402,9 +403,9 @@
   <!-- ============ 推移 ============ -->
   <section class="view" id="v-chart" role="tabpanel">
     <div class="card">
-      <h2>部位ごとの調子（直近28日）</h2>
+      <h2 id="heatTitle">部位ごとの調子（直近28日）</h2>
       <div class="hm" id="heat"></div>
-      <div class="hmfoot"><span>28日前</span><span>今日</span></div>
+      <div class="hmfoot"><span id="heatRange">28日前</span><span>今日</span></div>
       <div class="legend">
         <span><i style="background:var(--s1)"></i>絶不調</span>
         <span><i style="background:var(--s3)"></i>普通</span>
@@ -651,20 +652,80 @@ function persist(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } ca
    1日1回に絞る理由：チップを押すたびに保存が走るので、そのまま数えると
    1人が1日で数十件になり「何割が記録を始めたか」が測れなくなる。
    1日1回なら「その日に記録した端末の数」になり、割合も推移も両方読める。 */
-function countSave(){
+function countDaily(slot, path, title){
   if (typeof noCount !== 'undefined' && noCount) return;   // 自分たちの端末は数えない
   try {
+    var k = slot ? 'hadaLog.ev.' + slot : 'hadaLog.ev';    // save は既存キーのまま（互換）
     var d = key(new Date());
-    if (localStorage.getItem('hadaLog.ev') === d) return;
-    localStorage.setItem('hadaLog.ev', d);
+    if (localStorage.getItem(k) === d) return;
+    localStorage.setItem(k, d);
   } catch(e) { return; }
   /* count.js は非同期で読み込まれる。間に合っていなければ数えないだけにする
      （取りこぼしても、集計の目的からすると許容範囲） */
   try {
     if (window.goatcounter && window.goatcounter.count) {
-      window.goatcounter.count({path:'save', title:'記録を保存', event:true});
+      window.goatcounter.count({path:path, title:title, event:true});
     }
   } catch(e){}
+}
+function countSave(){ countDaily('', 'save', '記録を保存'); }
+
+/* 直近2日の引き算。推定ではないので、日数が足りなくても出してよい。
+   「今日の数字・前日との差・写真の並置・積み上がり」は事実として返してよいもの。
+
+   ⚠️ 記録を飛ばした日があると「きのう」とは限らないので、実際の間隔を見て呼び分ける。
+   ここで嘘の日付を書くと、この製品がいちばん大事にしているものが崩れる。 */
+function dayDelta(){
+  var ks = recKeys();
+  if (ks.length < 2) return null;
+  var ck = ks[ks.length-1], pk = ks[ks.length-2];
+  var a = norm(rec(ck)).a || {}, b = norm(rec(pk)).a || {};
+  var up = [], dn = [], same = 0;
+  AREAS.forEach(function(x){
+    var va = a[x.id], vb = b[x.id];
+    if (!va || !vb) return;
+    if (va > vb) up.push(x.l+' +'+(va-vb));
+    else if (va < vb) dn.push(x.l+' −'+(vb-va));
+    else same++;
+  });
+  if (!up.length && !dn.length && !same) return null;   // 比べられる部位がない
+  return {gap: dayDiff(pk, ck), up: up, dn: dn, same: same};
+}
+
+
+/* 訪問 → ここ → 保存 の3段で、どこで抜けているかを見る。
+
+   ⚠️ 「記録タブを表示した」では段にならない。v-log は class="view on" で
+   最初から表示されているので、訪問数とまったく同じ数になる。
+   実際にユーザーが越える必要があるのは、上の紹介カードを読み飛ばして
+   5段階のグリッドまでたどり着くところ。なのでグリッドが画面に入った時点で数える。 */
+/* IntersectionObserver は使わない。描画していない環境（検証用のヘッドレス等）では
+   一度も発火せず、動作を確かめられなかった。位置を直接見るほうが素直で、
+   対応ブラウザも広い。 */
+var gridSeen = false, gridCheck = null;
+function watchGrid(){
+  var t = document.getElementById('areaGrid');
+  if (!t) return;
+  if (gridCheck) {
+    window.removeEventListener('scroll', gridCheck);
+    window.removeEventListener('resize', gridCheck);
+  }
+  gridCheck = function(){
+    if (gridSeen) return;
+    var r = t.getBoundingClientRect();
+    /* グリッドの上端が画面の上6割に入ったら「到達した」とみなす。
+       下端にわずかに覗いた程度で数えると、紹介カードを読んだだけの人まで
+       到達に入ってしまい、段として意味がなくなる。 */
+    if (r.bottom > 0 && r.top < window.innerHeight * 0.6) {
+      gridSeen = true;
+      window.removeEventListener('scroll', gridCheck);
+      window.removeEventListener('resize', gridCheck);
+      countDaily('grid', 'grid', '記録グリッド表示');
+    }
+  };
+  window.addEventListener('scroll', gridCheck, {passive:true});
+  window.addEventListener('resize', gridCheck);
+  gridCheck();
 }
 
 var saveTimer = null;
@@ -1079,7 +1140,13 @@ function seriesLast(n){
   return out;
 }
 function renderHeat(){
-  var n = 28, s = seriesLast(n), h = $('heat');
+  /* 初日から28マス出すと、27マスの空白が主役になる。記録が伸びるにつれて枠を広げる。
+     最初は1週間ぶんだけ見せて、埋まったら次の週を足す。 */
+  var days = recKeys().length;
+  var n = Math.min(28, Math.max(7, Math.ceil(days/7)*7));
+  var s = seriesLast(n), h = $('heat');
+  $('heatRange').textContent = n + '日前';
+  $('heatTitle').textContent = '部位ごとの調子（直近' + n + '日）';
   h.innerHTML = '';
   AREAS.forEach(function(a){
     h.appendChild(el('div','rn', a.l));
@@ -1100,7 +1167,8 @@ function renderChart(){
   w.innerHTML = '';
   var pts = s.map(function(p){ return p.r ? overall(p.r) : null; });
   if (pts.filter(function(v){ return v!=null; }).length < 2) {
-    w.appendChild(el('p','empty-note','2日ぶん記録するとグラフが出ます。'));
+    /* 初日に「足りない」と言わない。同じ事実を、次にやることの形で書く。 */
+    w.appendChild(el('p','empty-note','明日もう1日記録すると、変化が見えはじめます。'));
     renderKPIs(); return;
   }
   var W=320, H=128, P={l:14,r:8,t:8,b:16}, iw=W-P.l-P.r, ih=H-P.t-P.b;
@@ -1773,15 +1841,36 @@ function paintInsights(){
     } else {
       c.appendChild(el('p','lede','まだ部位の記録がありません。記録タブで7か所を押すところから始めてください。'));
     }
+    /* 明日また開く理由をひとつ作る。21日待たなくても、2日目には差が出る。 */
+    var dl = dayDelta();
+    if (dl) {
+      var when = dl.gap === 1 ? 'きのう' : dl.gap+'日前の記録';
+      var box = el('div','ins');
+      box.appendChild(el('p','h', when + 'とくらべて'));
+      if (!dl.up.length && !dl.dn.length) {
+        box.appendChild(el('p','d','7か所とも同じでした。'));
+      } else {
+        var parts = [];
+        if (dl.up.length) parts.push('良いほうへ：'+dl.up.join('・'));
+        if (dl.dn.length) parts.push('悪いほうへ：'+dl.dn.join('・'));
+        if (dl.same) parts.push('変わらず '+dl.same+'か所');
+        box.appendChild(el('p','d', parts.join(' ／ ')));
+      }
+      c.appendChild(box);
+    } else if (ks.length === 1) {
+      c.appendChild(el('p','sub','明日もう1日記録すると、ここに「きのうとの差」が出ます。'));
+    }
     c.appendChild(el('p','sub','ここに出しているのは、押した数字を並べただけのものです。何がどの部位に効いているかの計算は、まだ始まっていません。'));
     body.appendChild(c);
 
     var c2 = el('div','card');
-    c2.appendChild(el('h2',null,'あと'+(MIN_DAYS-ks.length)+'日で分析がはじまります'));
+    /* 主役は「積み上げた日数」。カウントダウンは従属に置く。
+       初日に「あと20日」を大きく出すと、まだ何も積んでいないのに残りの多さだけが伝わる。 */
+    c2.appendChild(el('h2',null, ks.length+'日目 / '+MIN_DAYS+'日'));
     var pr = el('div','progress'), i2 = el('i');
     i2.style.width = Math.round(ks.length/MIN_DAYS*100)+'%'; pr.appendChild(i2);
     c2.appendChild(pr);
-    c2.appendChild(el('p','sub','記録ずみ '+ks.length+' / '+MIN_DAYS+' 日'));
+    c2.appendChild(el('p','sub','あと'+(MIN_DAYS-ks.length)+'日で分析がはじまります。'));
     c2.appendChild(el('p','lede mt','日数が足りないうちに計算すると、ただの偶然を「原因」として拾ってしまいます。'
       +MIN_DAYS+'日は、それを避けられる最小の日数です。'));
     c2.appendChild(docChip('何日記録すれば分かるのか','nannichi/'));
@@ -2105,6 +2194,8 @@ $('memo').addEventListener('input', function(){ var v=$('memo').value; edit(key(
 
 $('hideIntro').addEventListener('click', function(){ state.ui.intro=false; persist(); $('introCard').hidden=true; });
 if (state.ui.intro === false) $('introCard').hidden = true;
+watchGrid();   // 紹介カードを越えて記録グリッドまで来たかを1日1回だけ数える
+
 
 $('phAdd').addEventListener('click', function(){ $('phInput').click(); });
 $('phInput').addEventListener('change', function(){
@@ -2202,7 +2293,9 @@ window.HADA = {state:state, findings:findings, analyze:analyze, recKeys:recKeys,
                show:show, key:key, norm:norm, overall:overall, sleepH:sleepH, AREAS:AREAS,
                /* 較正の測定用。判定基準を差し替えて合成データを流すときに使う。
                   IIFE の中の変数は外から代入できないので関数経由。通常動作では触らないこと。 */
-               setFdr:function(q,n){ FDR_Q = q; if (n) N_SUR = n; anCache.ver = ''; }};
+               setFdr:function(q,n){ FDR_Q = q; if (n) N_SUR = n; anCache.ver = ''; },
+               /* 計測イベントの検証用。監視をやり直す。通常動作では触らないこと。 */
+               rewatchGrid:function(){ gridSeen = false; watchGrid(); }};
 })();
 </script>
 </body>
