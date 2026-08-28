@@ -339,6 +339,7 @@
       <div class="privacy" id="todayNote" style="margin-top:12px" hidden></div>
     </div>
 
+
     <div class="card">
       <p class="label">睡眠 <span class="opt">（前の晩）</span></p>
       <div class="times">
@@ -668,6 +669,29 @@ function countDaily(slot, path, title){
   } catch(e){}
 }
 function countSave(){ countDaily('', 'save', '記録を保存'); }
+
+/* 直近2日の引き算。推定ではないので、日数が足りなくても出してよい。
+   「今日の数字・前日との差・写真の並置・積み上がり」は事実として返してよいもの。
+
+   ⚠️ 記録を飛ばした日があると「きのう」とは限らないので、実際の間隔を見て呼び分ける。
+   ここで嘘の日付を書くと、この製品がいちばん大事にしているものが崩れる。 */
+function dayDelta(){
+  var ks = recKeys();
+  if (ks.length < 2) return null;
+  var ck = ks[ks.length-1], pk = ks[ks.length-2];
+  var a = norm(rec(ck)).a || {}, b = norm(rec(pk)).a || {};
+  var up = [], dn = [], same = 0;
+  AREAS.forEach(function(x){
+    var va = a[x.id], vb = b[x.id];
+    if (!va || !vb) return;
+    if (va > vb) up.push(x.l+' +'+(va-vb));
+    else if (va < vb) dn.push(x.l+' −'+(vb-va));
+    else same++;
+  });
+  if (!up.length && !dn.length && !same) return null;   // 比べられる部位がない
+  return {gap: dayDiff(pk, ck), up: up, dn: dn, same: same};
+}
+
 
 /* 訪問 → ここ → 保存 の3段で、どこで抜けているかを見る。
 
@@ -1817,6 +1841,25 @@ function paintInsights(){
     } else {
       c.appendChild(el('p','lede','まだ部位の記録がありません。記録タブで7か所を押すところから始めてください。'));
     }
+    /* 明日また開く理由をひとつ作る。21日待たなくても、2日目には差が出る。 */
+    var dl = dayDelta();
+    if (dl) {
+      var when = dl.gap === 1 ? 'きのう' : dl.gap+'日前の記録';
+      var box = el('div','ins');
+      box.appendChild(el('p','h', when + 'とくらべて'));
+      if (!dl.up.length && !dl.dn.length) {
+        box.appendChild(el('p','d','7か所とも同じでした。'));
+      } else {
+        var parts = [];
+        if (dl.up.length) parts.push('良いほうへ：'+dl.up.join('・'));
+        if (dl.dn.length) parts.push('悪いほうへ：'+dl.dn.join('・'));
+        if (dl.same) parts.push('変わらず '+dl.same+'か所');
+        box.appendChild(el('p','d', parts.join(' ／ ')));
+      }
+      c.appendChild(box);
+    } else if (ks.length === 1) {
+      c.appendChild(el('p','sub','明日もう1日記録すると、ここに「きのうとの差」が出ます。'));
+    }
     c.appendChild(el('p','sub','ここに出しているのは、押した数字を並べただけのものです。何がどの部位に効いているかの計算は、まだ始まっていません。'));
     body.appendChild(c);
 
@@ -2152,6 +2195,7 @@ $('memo').addEventListener('input', function(){ var v=$('memo').value; edit(key(
 $('hideIntro').addEventListener('click', function(){ state.ui.intro=false; persist(); $('introCard').hidden=true; });
 if (state.ui.intro === false) $('introCard').hidden = true;
 watchGrid();   // 紹介カードを越えて記録グリッドまで来たかを1日1回だけ数える
+
 
 $('phAdd').addEventListener('click', function(){ $('phInput').click(); });
 $('phInput').addEventListener('change', function(){
