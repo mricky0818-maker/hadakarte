@@ -339,6 +339,21 @@
       <div class="privacy" id="todayNote" style="margin-top:12px" hidden></div>
     </div>
 
+    <!-- 初日に1回記録した直後だけ出す。思い出す手段を渡す（端末内で .ics を作るだけ） -->
+    <div class="card" id="remindCard" hidden>
+      <p class="label">明日の朝、思い出せますか</p>
+      <p class="sub" style="margin:0 0 12px">毎朝おなじ時間に押すと、日ごとの比較ができます。カレンダーに繰り返しの予定として入れておけます。</p>
+      <div class="times" style="margin-bottom:12px">
+        <label class="tf"><span>通知する時刻</span><input type="time" id="remindAt" value="07:00" /></label>
+      </div>
+      <a class="btn" id="remindDl" download="hadakarte.ics" href="#">カレンダーに追加</a>
+      <p class="sub" id="remindHome" hidden></p>
+      <p class="sub">この予定は端末の中で作られます。<b>サーバーには何も送りません。</b></p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn ghost sm" id="remindSkip" type="button">あとで</button>
+      </div>
+    </div>
+
     <div class="card">
       <p class="label">睡眠 <span class="opt">（前の晩）</span></p>
       <div class="times">
@@ -669,6 +684,85 @@ function countDaily(slot, path, title){
 }
 function countSave(){ countDaily('', 'save', '記録を保存'); }
 
+/* 直近2日の引き算。推定ではないので、日数が足りなくても出してよい。
+   「今日の数字・前日との差・写真の並置・積み上がり」は事実として返してよいもの。
+
+   ⚠️ 記録を飛ばした日があると「きのう」とは限らないので、実際の間隔を見て呼び分ける。
+   ここで嘘の日付を書くと、この製品がいちばん大事にしているものが崩れる。 */
+function dayDelta(){
+  var ks = recKeys();
+  if (ks.length < 2) return null;
+  var ck = ks[ks.length-1], pk = ks[ks.length-2];
+  var a = norm(rec(ck)).a || {}, b = norm(rec(pk)).a || {};
+  var up = [], dn = [], same = 0;
+  AREAS.forEach(function(x){
+    var va = a[x.id], vb = b[x.id];
+    if (!va || !vb) return;
+    if (va > vb) up.push(x.l+' +'+(va-vb));
+    else if (va < vb) dn.push(x.l+' −'+(vb-va));
+    else same++;
+  });
+  if (!up.length && !dn.length && !same) return null;   // 比べられる部位がない
+  return {gap: dayDiff(pk, ck), up: up, dn: dn, same: same};
+}
+
+/* 毎朝おなじ時間に開いてもらう手段を渡す。
+   通知APIは使えない（時刻指定のローカル通知は2019年の提案のまま実験段階、
+   通知API自体も iOS Safari で動かない。流入の87%がiOS）。Web Push はサーバーと
+   登録が要るので「登録不要・端末から何も出ない」と正面からぶつかる。
+   カレンダーの繰り返し予定なら、端末内で文字列を作って渡すだけで済む。 */
+function buildIcs(hhmm){
+  var p = String(hhmm||'07:00').split(':');
+  var hh = Math.min(23, Math.max(0, parseInt(p[0],10) || 7));
+  var mm = Math.min(59, Math.max(0, parseInt(p[1],10) || 0));
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+  var now = new Date();
+  var st = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, hh, mm);
+  /* TZID は付けない。VTIMEZONE を持たない TZID を嫌うクライアントがあるうえ、
+     「毎朝7時」は現地時刻で動いてほしいので、時間帯を持たない書き方が正しい。 */
+  var local = st.getFullYear()+pad(st.getMonth()+1)+pad(st.getDate())+'T'+pad(hh)+pad(mm)+'00';
+  var utc = now.getUTCFullYear()+pad(now.getUTCMonth()+1)+pad(now.getUTCDate())
+          +'T'+pad(now.getUTCHours())+pad(now.getUTCMinutes())+pad(now.getUTCSeconds())+'Z';
+  return [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//hadakarte//JP','CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    'UID:hadakarte-'+utc+'-'+Math.floor(Math.random()*1e6)+'@hadakarte.com',
+    'DTSTAMP:'+utc,
+    'DTSTART:'+local,
+    'DURATION:PT5M',
+    'RRULE:FREQ=DAILY',
+    'SUMMARY:肌カルテ 洗顔前に記録',
+    'DESCRIPTION:https://hadakarte.com/',
+    'BEGIN:VALARM','TRIGGER:-PT0M','ACTION:DISPLAY',
+    'DESCRIPTION:肌カルテ 洗顔前に記録',
+    'END:VALARM','END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+}
+var icsURL = null;
+function refreshIcs(){
+  var a = $('remindDl');
+  if (!a) return;
+  if (icsURL) URL.revokeObjectURL(icsURL);
+  icsURL = URL.createObjectURL(new Blob([buildIcs($('remindAt').value)], {type:'text/calendar'}));
+  a.href = icsURL;
+}
+/* 初日に1回記録したときだけ出す。「はじめる」の前には出さない（まだ理由がない）。 */
+function renderRemind(){
+  var c = $('remindCard');
+  if (!c) return;
+  var show = (state.ui.remind !== false) && recKeys().length === 1 && !!rec(key(today)).a;
+  var hasAny = recKeys().length === 1 && Object.keys(rec(key(today)).a || {}).length > 0;
+  c.hidden = !(show && hasAny);
+  if (c.hidden) return;
+  refreshIcs();
+  if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+    var h = $('remindHome');
+    h.hidden = false;
+    h.innerHTML = 'ホーム画面に置いておくと開きやすくなります：'
+      + '<b>共有ボタン → ホーム画面に追加</b>';
+  }
+}
+
 /* 訪問 → ここ → 保存 の3段で、どこで抜けているかを見る。
 
    ⚠️ 「記録タブを表示した」では段にならない。v-log は class="view on" で
@@ -990,6 +1084,7 @@ function renderLog(){
   renderFace(r);
   paintAreaGrid(r);
   renderTodayNote(r);
+  renderRemind();
 
   if (document.activeElement !== $('sIn'))  $('sIn').value  = r.sIn  || '';
   if (document.activeElement !== $('sOut')) $('sOut').value = r.sOut || '';
@@ -1817,6 +1912,25 @@ function paintInsights(){
     } else {
       c.appendChild(el('p','lede','まだ部位の記録がありません。記録タブで7か所を押すところから始めてください。'));
     }
+    /* 明日また開く理由をひとつ作る。21日待たなくても、2日目には差が出る。 */
+    var dl = dayDelta();
+    if (dl) {
+      var when = dl.gap === 1 ? 'きのう' : dl.gap+'日前の記録';
+      var box = el('div','ins');
+      box.appendChild(el('p','h', when + 'とくらべて'));
+      if (!dl.up.length && !dl.dn.length) {
+        box.appendChild(el('p','d','7か所とも同じでした。'));
+      } else {
+        var parts = [];
+        if (dl.up.length) parts.push('良いほうへ：'+dl.up.join('・'));
+        if (dl.dn.length) parts.push('悪いほうへ：'+dl.dn.join('・'));
+        if (dl.same) parts.push('変わらず '+dl.same+'か所');
+        box.appendChild(el('p','d', parts.join(' ／ ')));
+      }
+      c.appendChild(box);
+    } else if (ks.length === 1) {
+      c.appendChild(el('p','sub','明日もう1日記録すると、ここに「きのうとの差」が出ます。'));
+    }
     c.appendChild(el('p','sub','ここに出しているのは、押した数字を並べただけのものです。何がどの部位に効いているかの計算は、まだ始まっていません。'));
     body.appendChild(c);
 
@@ -2152,6 +2266,18 @@ $('memo').addEventListener('input', function(){ var v=$('memo').value; edit(key(
 $('hideIntro').addEventListener('click', function(){ state.ui.intro=false; persist(); $('introCard').hidden=true; });
 if (state.ui.intro === false) $('introCard').hidden = true;
 watchGrid();   // 紹介カードを越えて記録グリッドまで来たかを1日1回だけ数える
+
+$('remindAt').addEventListener('change', refreshIcs);
+$('remindAt').addEventListener('input', refreshIcs);
+/* 押した時点で「渡した」とみなして畳む。実際にカレンダーへ入れたかは端末側の話で、
+   こちらからは分からないし、追いかけない。 */
+$('remindDl').addEventListener('click', function(){
+  state.ui.remind = false; persist();
+  setTimeout(function(){ $('remindCard').hidden = true; }, 400);
+});
+$('remindSkip').addEventListener('click', function(){
+  state.ui.remind = false; persist(); $('remindCard').hidden = true;
+});
 
 $('phAdd').addEventListener('click', function(){ $('phInput').click(); });
 $('phInput').addEventListener('change', function(){
