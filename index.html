@@ -1517,6 +1517,23 @@ function tstat(x, y, D, lag, shift){
   var df=(sa+sb)*(sa+sb)/(sa*sa/(nA-1)+sb*sb/(nB-1));
   return {t:(mA-mB)/se, diff:mA-mB, nA:nA, nB:nB, df:df};
 }
+/* tstat が null を返した候補について、あと何日ぶん記録が増えれば判定に進めるか。
+   「見つかりませんでした」だけだと打つ手なしに読めるが、実際は日数が足りなくて
+   検定にすら進めていない候補がほとんどなので、その不足ぶんを名指しで出す。
+   あてはまる日は nA を、あてはまらない日は nB を1ずつ増やすので、
+   不足ぶんの合計がそのまま「最短であと何日」になる。 */
+function shortfall(x, y, D, lag){
+  var nA=0, nB=0;
+  for (var i=0;i<D;i++){
+    var m = x[i];
+    if (!m) continue;
+    var v = y[(i+lag) % D];
+    if (v !== v) continue;
+    if (m === 1) nA++; else nB++;
+  }
+  var dA = Math.max(0, MIN_A-nA), dB = Math.max(0, MIN_B-nB);
+  return {nA:nA, nB:nB, needA:dA, needB:dB, need:dA+dB};
+}
 
 var anCache = {ver:'', val:null};
 /* 内容そのものから鍵を作る。日数だけを鍵にすると、過去の記録を直したときに
@@ -1536,7 +1553,7 @@ function analyze(){
   var M = buildMatrix(), C = M.cands.length, T = TARGETS.length, D = M.D;
 
   // 実際の並びでの、候補ごとの最良の組み合わせ
-  var obs = [];
+  var obs = [], examined = 0, waiting = [];
   for (var c=0;c<C;c++){
     var best = null, lags = M.cands[c].lags || LAG_AFTER;
     for (var t=0;t<T;t++) for (var li=0;li<lags.length;li++){
@@ -1547,6 +1564,19 @@ function analyze(){
         best = {t:r.t, diff:r.diff, nA:r.nA, nB:r.nB, df:r.df, target:TARGETS[t].l, lag:L};
       }
     }
+    if (!best) {
+      /* 日数がいちばん足りている組み合わせで数える。need が 0 なら日数の問題ではなく
+         「あてはまる日の点数が全部同じ」で、記録を足しても変わらないので出さない。 */
+      var bs = null;
+      for (var t3=0;t3<T;t3++) for (var l3=0;l3<lags.length;l3++){
+        var sf = shortfall(M.X[c], M.Y[t3], D, lags[l3]);
+        if (!bs || sf.need < bs.need) bs = sf;
+      }
+      if (bs && bs.need > 0) {
+        waiting.push({label:M.cands[c].label, group:M.cands[c].group,
+                      need:bs.need, needA:bs.needA, needB:bs.needB, nA:bs.nA});
+      }
+    } else examined++;
     if (best) {
       best.label = M.cands[c].label; best.group = M.cands[c].group; best.pair = M.cands[c].pair || null;
       best.prod = M.cands[c].prod || 0; best.kindKey = M.cands[c].kindKey || null;
@@ -1555,6 +1585,9 @@ function analyze(){
     }
     obs.push(best);
   }
+  // あと少しで判定できるものを先に見せる（そこを狙って記録すれば次で効く）
+  waiting.sort(function(a,b){ return a.need - b.need || b.nA - a.nA; });
+  var pool = {cands:C, examined:examined, waiting:waiting};
 
   /* 「関係がない世界」の作り方は2通りあり、日数で使い分ける。
 
@@ -1582,7 +1615,7 @@ function analyze(){
       var step = Math.max(1, Math.ceil((hi-lo+1) / MAX_SHIFTS));
       for (var s=lo; s<=hi; s+=step) shifts.push(s);
     }
-    if (shifts.length < 8) return finish(ks, obs, [], [], null, null);
+    if (shifts.length < 8) return finish(ks, obs, [], [], null, null, pool);
     /* 肌の並びを時間反転しても自己相関は保たれる＝同じ帰無分布に属するので、
        反転版にも同じシフトをかけて本数を倍にする。 */
     var Yrev = M.Y.map(function(y){
@@ -1638,9 +1671,9 @@ function analyze(){
     for (var i=0;i<S;i++) if (nullMax[i] >= Math.abs(f.t)) ge++;
     f.pFam = (1+ge) / (1+S);              // 全候補まとめての調整 p（これが本命の判定）
   });
-  return finish(ks, obs, nullMax, draws, ver, M);
+  return finish(ks, obs, nullMax, draws, ver, M, pool);
 }
-function finish(ks, obs, nullMax, draws, ver, M){
+function finish(ks, obs, nullMax, draws, ver, M, pool){
   var list = obs.filter(Boolean).filter(function(f){ return Math.abs(f.diff) >= MIN_DIFF; });
 
   // 「睡眠6時間未満」と「7時間以上」のような裏返しの組は強いほうだけ残す
@@ -1715,6 +1748,9 @@ function finish(ks, obs, nullMax, draws, ver, M){
 
   var val = {ready:true, days:ks.length, hits:hits, leads:leads, all:all, strict:strict,
              tested:list.length, shifts:draws.length,
+             cands: pool ? pool.cands : null,
+             examined: pool ? pool.examined : null,
+             waiting: pool ? pool.waiting : [],
              resolution: draws.length ? 1/(1+draws.length) : null};
   if (ver) { anCache.ver = ver; anCache.val = val; }
   return val;
@@ -1891,6 +1927,18 @@ function paintInsights(){
   if (!res.hits.length) {
     card.appendChild(el('p','lede','いまのところ、偶然では説明しにくいほどはっきりした関係は見つかっていません。'
       + '記録が増えるほど、小さな影響も見つけられるようになります。'));
+    /* 「見つかりませんでした」だけで終えると、次に何をすればいいのか分からないまま
+       21日ぶんの記録が行き止まりに見える。何個中いくつを実際に調べたのか、
+       残りは何が足りないのかを出す。 */
+    if (res.cands) {
+      card.appendChild(el('p','d','調べた候補は'+res.cands+'個。そのうち日数が足りて判定まで進めたのは'
+        + res.examined+'個です。残りは、あてはまった日かそれ以外の日がまだ足りていません'
+        + '（判定にはあてはまった日が'+MIN_A+'日、それ以外の日が'+MIN_B+'日必要です）。'));
+    }
+    card.appendChild(el('p','d','この判定は、偶然の一致を「発見」として出さないことを優先して厳しめにしてあります。'
+      + 'そのぶん序盤は沈黙しがちで、合成データで測ったところ、本当に原因がある場合でも見つけられるのは'
+      + '30日で約9%、60日で約25%、90日で約42%でした。'
+      + 'いま何も出ていないことは、原因がないことを意味しません。'));
   } else {
     res.hits.forEach(function(f){
       var bad = f.diff < 0;
@@ -1923,6 +1971,25 @@ function paintInsights(){
   card.appendChild(el('p','sub','※ あなた自身の記録にもとづく統計的な目安です。いつも一緒に起きている別の原因が'
     + '混ざっている可能性があります（例：外食した日はお酒も飲んでいる）。医学的な診断ではありません。'));
   body.appendChild(card);
+
+  /* 日数が足りない候補のうち、あと少しのものだけ。狙って記録すれば次の分析で効く。
+     判定できたものが1つでもある画面では、行き止まり感がないので出さない。 */
+  if (!res.hits.length && res.waiting && res.waiting.length) {
+    var wt = el('div','card');
+    wt.appendChild(el('h2',null,'あと少しで調べられるもの'));
+    wt.appendChild(el('p','lede','以下は、日数がそろえば次の分析から判定に入ります。'
+      + 'あてはまる日を狙って作る必要はありません。いつもどおり記録していれば、そのうちそろいます。'));
+    res.waiting.slice(0,5).forEach(function(w){
+      var t = [];
+      if (w.needA) t.push('あてはまる日があと'+w.needA+'日');
+      if (w.needB) t.push('それ以外の日があと'+w.needB+'日');
+      wt.appendChild(el('p','d','・「'+w.label+'」（'+w.group+'）… '+t.join('、')));
+    });
+    if (res.waiting.length > 5) {
+      wt.appendChild(el('p','sub','ほか'+(res.waiting.length-5)+'個も、同じように日数を待っています。'));
+    }
+    body.appendChild(wt);
+  }
 
   if (res.leads.length) {
     var lead = el('div','card');
