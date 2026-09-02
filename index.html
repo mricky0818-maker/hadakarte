@@ -330,6 +330,7 @@
     <div class="card">
       <p class="label">部位ごとの調子 <span class="opt">（朝・洗顔前の状態を）</span></p>
       <div class="facewrap" id="faceWrap"></div>
+      <p class="sub" id="lrHint" hidden>※ 鏡と同じ向きです。画面の右が、あなたの右。</p>
       <div class="agrid" id="areaGrid"></div>
       <div class="bulk">
         <button class="chip" id="bulkNormal" type="button">ぜんぶ「普通」</button>
@@ -557,7 +558,7 @@ var LEVELS = [
 ];
 var SC = {1:'var(--s1)',2:'var(--s2)',3:'var(--s3)',4:'var(--s4)',5:'var(--s5)'};
 
-var AREAS = [
+var AREA_BASE = [
   {id:'fore',   l:'でこ'},
   {id:'temple', l:'こめかみ'},
   {id:'nose',   l:'鼻'},
@@ -566,7 +567,53 @@ var AREAS = [
   {id:'chin',   l:'顎'},
   {id:'jaw',    l:'フェイスライン'}
 ];
-var AREA_L = {}; AREAS.forEach(function(a){ AREA_L[a.id] = a.l; });
+/* 左右に分けられるのは、正中線から外れていて「何が触れているか」が左右で
+   変わりうる3つだけ。でこ・鼻・口周り・顎は正中線上なので分けても意味がない。
+   顔マップは鏡と同じ向きに描いてある（画面の右がその人の右）。 */
+var AREA_LR = {temple:1, cheek:1, jaw:1};
+var AREAS = [], AREA_L = {};
+function lrAreas(){
+  var out = [];
+  AREA_BASE.forEach(function(a){
+    if (!AREA_LR[a.id]) return;
+    out.push({id:a.id+'L', l:'左'+a.l}); out.push({id:a.id+'R', l:'右'+a.l});
+  });
+  return out;
+}
+/* 記録するときの部位。左右に分けているあいだは、分けたほうだけを押してもらう。 */
+function rebuildAreas(){
+  AREAS = [];
+  AREA_BASE.forEach(function(a){
+    if (state.ui.lr && AREA_LR[a.id]) {
+      AREAS.push({id:a.id+'L', l:'左'+a.l}); AREAS.push({id:a.id+'R', l:'右'+a.l});
+    } else AREAS.push(a);
+  });
+  AREA_L = {};
+  AREA_BASE.concat(lrAreas()).forEach(function(a){ AREA_L[a.id] = a.l; });
+}
+/* 見るときの部位。合算の7つはいつも出す。左右に分ける前の記録を
+   グラフや平均から消さないため（合算は下の areaScores() が左右から作り直す）。 */
+function viewAreas(){
+  return state.ui.lr ? AREA_BASE.concat(lrAreas()) : AREA_BASE.slice();
+}
+/* 切り替え前の日には cheek が、あとの日には cheekL / cheekR が入っている。
+   合算だけは前後でつなげたいので、左右しかない日は平均して合算を作る。
+   逆はしない。合算しかない日から左右をでっち上げたら、記録していないものを
+   記録したことにしてしまう。 */
+function areaScores(r){
+  var out = {}, a = r.a || {};
+  AREA_BASE.forEach(function(x){
+    var v = a[x.id] || 0;
+    if (AREA_LR[x.id]) {
+      var L = a[x.id+'L'] || 0, R = a[x.id+'R'] || 0;
+      if (L) out[x.id+'L'] = L;
+      if (R) out[x.id+'R'] = R;
+      if (!v) v = (L && R) ? (L+R)/2 : (L || R || 0);
+    }
+    if (v) out[x.id] = v;
+  });
+  return out;
+}
 
 var HOW = [
   {id:'warm',l:'ぬるま湯'},{id:'hot',l:'熱いお湯'},{id:'cold',l:'冷水'},
@@ -609,7 +656,7 @@ Object.keys(HAS_KIND).forEach(function(c){ KINDS[c] = PRESETS[c].concat(['その
 
 /* ================= storage ================= */
 var KEY = 'hadaLog.v2';
-var state = {v:2, ui:{intro:true, period:false, mast:false}, items:{}, records:{}};
+var state = {v:2, ui:{intro:true, period:false, mast:false, lr:false}, items:{}, records:{}};
 try {
   var raw = localStorage.getItem(KEY);
   if (raw) {
@@ -617,7 +664,7 @@ try {
     if (p && typeof p === 'object') {
       state.records = p.records || {};
       state.items   = p.items || {};
-      state.ui      = Object.assign({intro:true, period:false, mast:false}, p.ui || {});
+      state.ui      = Object.assign({intro:true, period:false, mast:false, lr:false}, p.ui || {});
     }
   }
 } catch(e){}
@@ -626,6 +673,7 @@ Object.keys(state.items).forEach(function(id){
   var it = state.items[id];
   if (it && !it.kind) it.kind = it.name;
 });
+rebuildAreas();
 
 function seed(){
   if (Object.keys(state.items).length) return;
@@ -679,7 +727,7 @@ function dayDelta(){
   var ks = recKeys();
   if (ks.length < 2) return null;
   var ck = ks[ks.length-1], pk = ks[ks.length-2];
-  var a = norm(rec(ck)).a || {}, b = norm(rec(pk)).a || {};
+  var a = areaScores(norm(rec(ck))), b = areaScores(norm(rec(pk)));
   var up = [], dn = [], same = 0;
   AREAS.forEach(function(x){
     var va = a[x.id], vb = b[x.id];
@@ -809,10 +857,12 @@ function sleepH(r){
   if (d <= 0) d += 1440;
   return d/60;
 }
+/* 合算の7部位でならす。左右に分けた日も分ける前の日も同じ尺になるので、
+   切り替えをまたいでも「全体」の系列が途切れない。 */
 function overall(r){
-  var v = [], n = 0;
-  AREAS.forEach(function(a){ if (r.a[a.id]) { v.push(r.a[a.id]); n++; } });
-  return n ? v.reduce(function(x,y){return x+y;},0)/n : null;
+  var s = areaScores(r), v = [];
+  AREA_BASE.forEach(function(a){ if (s[a.id]) v.push(s[a.id]); });
+  return v.length ? v.reduce(function(x,y){return x+y;},0)/v.length : null;
 }
 function avg(a){ var s=0; for (var i=0;i<a.length;i++) s+=a[i]; return s/a.length; }
 
@@ -834,22 +884,35 @@ var FACE = '<svg class="face" viewBox="0 0 200 224" role="img" aria-label="顔�
   + 'C91,208 82,198 70,182 C50,156 40,124 40,86 C40,42 62,14 100,14 Z"/>'
   + '</svg>';
 
+/* SVG は左右をべつの図形として描いてある（cheek と cheek2 など）。
+   左右を分けないあいだは末尾の 2 を落として同じ部位に寄せ、分けているあいだは
+   L / R に振り分ける。鏡と同じ向きなので、画面の右（2 のほう）がその人の右。 */
+function zoneArea(dz){
+  var base = dz.replace(/2$/,'');
+  if (!state.ui.lr || !AREA_LR[base]) return base;
+  return base + (/2$/.test(dz) ? 'R' : 'L');
+}
 function renderFace(r){
   var w = $('faceWrap');
+  $('lrHint').hidden = !state.ui.lr;
   if (!w.firstChild) {
     w.innerHTML = FACE;
     Array.prototype.forEach.call(w.querySelectorAll('.zone'), function(z){
       z.setAttribute('tabindex','0');
-      var a = z.dataset.a.replace(/2$/,'');
-      z.setAttribute('aria-label', AREA_L[a]);
-      z.addEventListener('click', function(){ selArea = (selArea === a) ? '' : a; renderLog(); });
+      z.addEventListener('click', function(){
+        var a = zoneArea(z.dataset.a);
+        selArea = (selArea === a) ? '' : a; renderLog();
+      });
       z.addEventListener('keydown', function(e){ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); z.click(); } });
     });
   }
+  var sc = areaScores(r);
   Array.prototype.forEach.call(w.querySelectorAll('.zone'), function(z){
-    var a = z.dataset.a.replace(/2$/,'');
-    var v = r.a[a] || 0;
-    var col = v ? SC[v] : 'var(--line)';
+    var a = zoneArea(z.dataset.a);
+    z.setAttribute('aria-label', AREA_L[a] || a);
+    /* 左右から作った合算は 3.5 のような値になりうるので、色を引くときだけ丸める */
+    var v = sc[a] || 0;
+    var col = v ? SC[Math.round(v)] : 'var(--line)';
     /* CSS の .zone{stroke} が presentation attribute より強いので、色は style で当てる */
     if (z.classList.contains("line")) z.style.stroke = col; else z.style.fill = col;
     z.classList.toggle('sel', selArea === a);
@@ -1148,15 +1211,16 @@ function renderHeat(){
   $('heatRange').textContent = n + '日前';
   $('heatTitle').textContent = '部位ごとの調子（直近' + n + '日）';
   h.innerHTML = '';
-  AREAS.forEach(function(a){
+  viewAreas().forEach(function(a){
     h.appendChild(el('div','rn', a.l));
     var row = el('div','rr');
     row.style.gridTemplateColumns = 'repeat(' + n + ', 1fr)';
     s.forEach(function(p){
       var c = el('div','c');
-      var v = p.r ? (p.r.a[a.id] || 0) : 0;
-      if (v) c.style.background = SC[v];
-      c.title = p.k + ' ' + a.l + '：' + (v ? LEVELS[v-1].l : '記録なし');
+      /* 左右から作った合算は 3.5 のような値になりうる。色と段階名は丸めて引く。 */
+      var v = p.r ? (areaScores(p.r)[a.id] || 0) : 0, rv = Math.round(v);
+      if (v) c.style.background = SC[rv];
+      c.title = p.k + ' ' + a.l + '：' + (v ? LEVELS[rv-1].l : '記録なし');
       row.appendChild(c);
     });
     h.appendChild(row);
@@ -1232,8 +1296,8 @@ function renderAreaBars(){
   var box = $('areaBars'); box.innerHTML='';
   var ks = recKeys();
   var any = false;
-  AREAS.forEach(function(a){
-    var v = ks.map(function(k){ return norm(state.records[k]).a[a.id] || 0; }).filter(function(x){ return x; });
+  viewAreas().forEach(function(a){
+    var v = ks.map(function(k){ return areaScores(norm(state.records[k]))[a.id] || 0; }).filter(function(x){ return x; });
     var b = el('div','bar');
     b.appendChild(el('span','t', a.l));
     var tr = el('div','track'), fl = el('div','fill');
@@ -1413,9 +1477,16 @@ function candidates(){
   }
   return out;
 }
-var TARGETS = [{id:'all', l:'全体'}].concat(AREAS);
-function targetScore(r, t){
-  return t.id==='all' ? overall(r) : (r.a[t.id] || null);
+/* 判定の対象。合算の7部位はいつも見る（切り替え前の記録もそのまま使えるように）。
+   左右に分けているあいだは、そこに左右ぶんを足す。左右の系列は切り替えた日から
+   始まるので、しばらくは日数が足りず判定に進めない。それでいい。 */
+function targets(){
+  return [{id:'all', l:'全体'}].concat(viewAreas());
+}
+function targetScore(r, t, sc){
+  if (t.id==='all') return overall(r);
+  sc = sc || areaScores(r);
+  return sc[t.id] || null;
 }
 var MIN_DAYS = 21;   // これ未満だと並べ替えの回数が足りず、判定そのものが成り立たない
 var MIN_A = 8;       // 少なくともこの日数はあてはまっていること
@@ -1484,10 +1555,12 @@ function buildMatrix(){
     var r = state.records[key(addDays(start,i))];
     byIdx[i] = r ? norm(r) : null;
   }
-  var Y = TARGETS.map(function(t){
+  var sc = byIdx.map(function(r){ return r ? areaScores(r) : null; });
+  var TG = targets();
+  var Y = TG.map(function(t){
     var arr = new Float64Array(D);
     for (var i=0;i<D;i++){
-      var v = byIdx[i] ? targetScore(byIdx[i], t) : null;
+      var v = byIdx[i] ? targetScore(byIdx[i], t, sc[i]) : null;
       arr[i] = (v == null) ? NaN : v;
     }
     return arr;
@@ -1498,7 +1571,7 @@ function buildMatrix(){
     for (var i=0;i<D;i++) arr[i] = byIdx[i] ? (c.test(byIdx[i]) ? 1 : 2) : 0;
     return arr;
   });
-  return {D:D, Y:Y, X:X, cands:cands};
+  return {D:D, Y:Y, X:X, cands:cands, targets:TG};
 }
 function tstat(x, y, D, lag, shift){
   var nA=0,sA=0,qA=0,nB=0,sB=0,qB=0;
@@ -1550,7 +1623,7 @@ function analyze(){
   var ver = dataHash();
   if (anCache.ver === ver) return anCache.val;
 
-  var M = buildMatrix(), C = M.cands.length, T = TARGETS.length, D = M.D;
+  var M = buildMatrix(), C = M.cands.length, T = M.targets.length, D = M.D;
 
   // 実際の並びでの、候補ごとの最良の組み合わせ
   var obs = [], examined = 0, waiting = [];
@@ -1561,7 +1634,8 @@ function analyze(){
       var r = tstat(M.X[c], M.Y[t], D, L, 0);
       if (!r) continue;
       if (!best || Math.abs(r.t) > Math.abs(best.t)) {
-        best = {t:r.t, diff:r.diff, nA:r.nA, nB:r.nB, df:r.df, target:TARGETS[t].l, lag:L};
+        best = {t:r.t, diff:r.diff, nA:r.nA, nB:r.nB, df:r.df,
+                target:M.targets[t].l, tid:M.targets[t].id, lag:L};
       }
     }
     if (!best) {
@@ -1737,6 +1811,35 @@ function finish(ks, obs, nullMax, draws, ver, M, pool){
     }
   });
 
+  /* 左右に分けている部位に出たものは、反対側でも同じことが起きているかを見る。
+     食べたもの・睡眠・ホルモンには「左だけ」を選ぶ仕組みがない。片側だけに出るなら、
+     その側に触れているもの（寝る向きと枕・頬杖・スマホ・髪・剃り方・塗るときの手の癖）が
+     先に疑われる。両側に出るなら逆に、体の内側か、左右おなじように使っているもの。
+     ここで足しているのは差の向きと大きさの比較だけで、2つ目の有意性は主張しない。 */
+  if (M && state.ui.lr) hits.forEach(function(f){
+    var mm = /^(.+)(L|R)$/.exec(f.tid || ''), base = mm ? mm[1] : (f.tid || '');
+    /* 合算の「頬」に出た場合もここを通る。左右をならしたほうがノイズが減るぶん、
+       左右おなじように効いている原因はむしろ合算のほうに出やすい。 */
+    if (!AREA_LR[base]) return;
+    function side(id){
+      for (var i=0;i<M.targets.length;i++) if (M.targets[i].id === id) return tstat(M.X[f.ci], M.Y[i], M.D, f.lag, 0);
+      return null;
+    }
+    function on(r){ return !!r && r.diff * f.diff > 0 && Math.abs(r.diff) >= MIN_DIFF; }
+    var L = side(base+'L'), R = side(base+'R'), onL = on(L), onR = on(R);
+    if (onL && onR) {
+      f.lr = 'both'; f.lrDiff = (L.diff + R.diff) / 2;
+    } else if (onL || onR) {
+      f.lr = 'one';
+      f.lrSide  = AREA_L[base + (onL ? 'L' : 'R')];
+      f.lrLabel = AREA_L[base + (onL ? 'R' : 'L')];
+      var o = onL ? R : L;
+      f.lrDiff = o ? o.diff : null;              // null = 反対側はまだ日数が足りない
+    } else {
+      f.lr = 'wait';                             // 左右に割ると、どちらもまだ届かない
+    }
+  });
+
   var hit = {};
   hits.forEach(function(f){ hit[f.label] = 1; });
   var leads = list.filter(function(f){ return !hit[f.label] && f.pOwn != null && f.pOwn <= LEAD_P; })
@@ -1788,9 +1891,9 @@ var AREA_DOC = {fore:'odeko/', temple:'komekami/', nose:'hana/', cheek:'hoho/',
 
 /* その日の記録のうち、いちばん低い部位（同点はすべて返す） */
 function lowestToday(r){
-  var lo = 9, out = [];
+  var lo = 9, out = [], sc = areaScores(r);
   AREAS.forEach(function(a){
-    var v = r.a[a.id];
+    var v = sc[a.id];
     if (!v) return;
     if (v < lo) { lo = v; out = [a]; }
     else if (v === lo) { out.push(a); }
@@ -1805,7 +1908,7 @@ function lowestMean(){
   var lo = 9, out = [];
   AREAS.forEach(function(a){
     var v = [];
-    ks.forEach(function(k){ var x = norm(state.records[k]).a[a.id]; if (x) v.push(x); });
+    ks.forEach(function(k){ var x = areaScores(norm(state.records[k]))[a.id]; if (x) v.push(x); });
     if (!v.length) return;
     var m = v.reduce(function(p,q){ return p+q; },0) / v.length;
     if (m < lo - 0.001) { lo = m; out = [a]; }
@@ -1959,6 +2062,26 @@ function paintInsights(){
           + 'いまの記録では、どちらが効いているのかを分けられません。'
           + '片方だけの日をつくると切り分けられます。'));
       }
+      /* 左右差そのものが、原因の種類をしぼる手がかりになる。
+         「場所で原因が分かる」という話ではなく、届き方の違いを見ている。 */
+      if (f.lr === 'one') {
+        w.appendChild(el('p','d','◐ '+f.lrSide+'だけに出ています'
+          + (f.lrDiff == null
+              ? '（反対の'+f.lrLabel+'は、まだ日数が足りず比べられません）'
+              : '。反対の'+f.lrLabel+'は平均 '+(f.lrDiff>0?'+':'')+f.lrDiff.toFixed(1)+' で、ほとんど動いていません')
+          + '。食べたものや睡眠、ホルモンには、左右のどちらかを選ぶ仕組みがありません。'
+          + '先に疑うのは、その側に触れているものです'
+          + '（寝る向きと枕、頬杖、スマホを当てる側、髪のかかり方、剃り方、塗るときの手の癖）。'));
+      } else if (f.lr === 'both') {
+        w.appendChild(el('p','d','◑ 左右どちらにも同じように出ています'
+          + '（左右の平均 '+(f.lrDiff>0?'+':'')+f.lrDiff.toFixed(1)+'）。'
+          + '両側に届くもの——食べたもの・睡眠・ホルモン、または顔全体に同じように'
+          + '使っているもの——が候補です。片側だけ触れているもの（枕・頬杖・スマホ）では、'
+          + 'この形になりません。'));
+      } else if (f.lr === 'wait') {
+        w.appendChild(el('p','d','◔ 左右に分けて見ると、どちらもまだはっきりしません。'
+          + '左右それぞれの記録がたまると、触れているものが原因かどうかを切り分けられます。'));
+      }
       card.appendChild(w);
     });
     card.appendChild(el('p','sub','※ 記録を並べ替えた「関係がない場合」のデータを'+res.shifts+'通りつくり、'
@@ -2107,7 +2230,16 @@ function renderOpts(){
     /* renderLog() まで呼ぶこと。show('v-log') は記録画面を描き直さないので、
        これが無いと設定を切り替えても記録画面にチップが出てこない。 */
     chip('性行為・自慰行為の記録', state.ui.mast, function(){ state.ui.mast = !state.ui.mast; persist(); renderOpts(); renderLog(); }),
-    chip('生理の記録',     state.ui.period, function(){ state.ui.period = !state.ui.period; persist(); renderOpts(); renderLog(); })
+    chip('生理の記録',     state.ui.period, function(){ state.ui.period = !state.ui.period; persist(); renderOpts(); renderLog(); }),
+    /* こめかみ・頬・フェイスラインを左右に分ける。分けたぶんは切り替えた日から
+       始まる新しい系列で、それまでの記録には手を触れない。合算の7部位は
+       areaScores() が左右から作り直すので、グラフも分析もまたいでつながる。
+       部位が増えるので buildAreaGrid() をやり直すこと。 */
+    chip('顔の左右を分けて記録', state.ui.lr, function(){
+      state.ui.lr = !state.ui.lr; persist();
+      rebuildAreas(); buildAreaGrid(); anCache.ver = '';
+      renderOpts(); renderLog();
+    })
   ]);
 }
 
@@ -2184,8 +2316,8 @@ function buildSummary(){
   L.push('期間：'+ks[0].replace(/-/g,'/')+' 〜 '+ks[ks.length-1].replace(/-/g,'/')+'（記録 '+ks.length+'日）');
   L.push('');
   L.push('■ 部位ごとの平均（5がいちばん良い）');
-  AREAS.forEach(function(a){
-    var v = ks.map(function(k){ return norm(state.records[k]).a[a.id]||0; }).filter(function(x){return x;});
+  viewAreas().forEach(function(a){
+    var v = ks.map(function(k){ return areaScores(norm(state.records[k]))[a.id]||0; }).filter(function(x){return x;});
     if (v.length) L.push('・'+a.l+'：'+avg(v).toFixed(1)+'（記録 '+v.length+'日）');
   });
   L.push('');
@@ -2357,7 +2489,11 @@ renderLog();
 renderStreak();
 
 window.HADA = {state:state, findings:findings, analyze:analyze, recKeys:recKeys, buildSummary:buildSummary,
-               show:show, key:key, norm:norm, overall:overall, sleepH:sleepH, AREAS:AREAS,
+               show:show, key:key, norm:norm, overall:overall, sleepH:sleepH,
+               areaScores:areaScores, targets:targets, AREA_BASE:AREA_BASE,
+               /* AREAS は左右の切り替えで作り直すので、値ではなく都度読む */
+               areas:function(){ return AREAS; },
+               setLr:function(on){ state.ui.lr = !!on; rebuildAreas(); buildAreaGrid(); anCache.ver=''; },
                /* 較正の測定用。判定基準を差し替えて合成データを流すときに使う。
                   IIFE の中の変数は外から代入できないので関数経由。通常動作では触らないこと。 */
                setFdr:function(q,n){ FDR_Q = q; if (n) N_SUR = n; anCache.ver = ''; },
